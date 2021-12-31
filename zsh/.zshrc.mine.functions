@@ -66,7 +66,7 @@ bindkey '^R' _peco_history_selection
 #
 # 過去に移動したことのあるディレクトリを選択する．Ctrl-G にバインド．
 #
-function _peco_cdr () {
+function _peco_cdr() {
     local selected_dir="$(cdr -l | sed 's/^[0-9]\+ \+//' | peco --prompt="cdr >" --query "$LBUFFER")"
     if [ -n "$selected_dir" ]; then
         # "cd ~/desktop" としたいところが "cd 1 ~/desktop" となってしまう事象を回避する
@@ -80,6 +80,21 @@ function _peco_cdr () {
 }
 zle -N _peco_cdr
 bindkey '^G' _peco_cdr
+
+#
+# Ctrl-] でリポジトリ一覧が表示され，選択したリポジトリに移動します
+#
+function _peco_src() {
+    local repo=$(ghq list | peco --query "$LBUFFER")
+    if [ -n "$repo" ]; then
+        repo=$(ghq list --full-path --exact $repo)
+        BUFFER="cd ${repo}"
+        zle accept-line
+    fi
+    zle clear-screen
+}
+zle -N _peco_src
+bindkey '^]' _peco_src
 
 
 ##############################################################################
