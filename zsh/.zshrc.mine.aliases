@@ -6,6 +6,13 @@ alias reload='source ~/.zshrc'
 alias vim='env LANG=ja_JP.UTF-8 /Applications/MacVim.app/Contents/MacOS/Vim "$@"'
 
 ##############################################################################
+# Git のエイリアス
+##############################################################################
+alias g='git'
+compdef g=git
+alias s="git status"
+
+##############################################################################
 # 自作関数のエイリアス
 ##############################################################################
 # for zsh
@@ -16,8 +23,8 @@ alias pk="_peco_pkill"
 # for Git
 alias ud='_update_develop'
 alias b='_git_branch'
-alias ch='_git_checkout''
-alias di='_git_diff
+alias ch='_git_checkout'
+alias d='_git_diff'
 alias a='_git_add'
 alias r='_git_restore'
 alias dd='_git_discard_diff'
