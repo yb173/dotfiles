@@ -1,0 +1,45 @@
+##############################################################################
+# zsh の設定
+##############################################################################
+# chpwd フックの設定
+chpwd() {
+    _ls_abbreviation
+}
+
+
+# cdr コマンドを有効にする
+if [[ -n $(echo ${^fpath}/chpwd_recent_dirs(N)) && -n $(echo ${^fpath}/cdr(N)) ]]; then
+    autoload -Uz chpwd_recent_dirs cdr add-zsh-hook
+    add-zsh-hook chpwd chpwd_recent_dirs
+    zstyle ':completion:*' recent-dirs-insert both
+    zstyle ':chpwd:*' recent-dirs-default true
+    zstyle ':chpwd:*' recent-dirs-max 1000
+    zstyle ':chpwd:*' recent-dirs-file "$HOME/.cache/chpwd-recent-dirs"
+fi
+
+
+##############################################################################
+# PATH の設定
+##############################################################################
+export PATH="/opt/homebrew/bin:$PATH" # homebrew でインストールしたバイナリ(gitなど)を優先する
+export PATH="/opt/homebrew/opt/libpq/bin:$PATH" # libpq に付属する psql, pg_dump を使う
+export PATH="$HOME/.anyenv/envs/pyenv/shims:$PATH" # anyenv -> pyenv の python を優先する 
+export PIPENV_VENV_IN_PROJECT=true # pipenvで生成される仮想環境をプロジェクト配下に作成する
+export PIPENV_MAX_DEPTH=5 # pipenv run python したときに何階層上まで Pipfile を探しに行くか
+export CLOUDSDK_PYTHON="$HOME/Work/gcp/.venv/bin/python3.7" # Cloud SDK が使うpython の指定
+
+
+##############################################################################
+# anyenv の設定
+##############################################################################
+eval "$(anyenv init -)"
+
+
+##############################################################################
+# その他の設定ファイルを読み込む
+##############################################################################
+# aliases
+[ -f ${HOME}/.zshrc.mine.aliases ] && source ${HOME}/.zshrc.mine.aliases
+
+# funcsions
+[ -f ${HOME}/.zshrc.mine.functions ] && source ${HOME}/.zshrc.mine.functions

@@ -1,0 +1,401 @@
+
+##############################################################################
+# Private 関数
+##############################################################################
+
+#
+# カレントディレクトリ以下を find して選択した通常ファイルを返す．
+#   $1: find するパス
+#   $2: findコマンドに渡す maxdepth
+#   $3: findコマンドに渡す type
+#   $4: .で始まる物を無視するかどうか．省略した場合は含む．何か指定した場合は含まない
+#
+function _peco_findselect() {
+    local base_path="$1"
+    local max_depth="$2"
+    local find_type="$3"
+
+    if [ -n "$4" ]; then
+        local file=`find ${base_path} -maxdepth ${max_depth} -type ${find_type} ! -path "*/.*" 2>/dev/null | peco`
+    else
+        local file=`find ${base_path} -maxdepth ${max_depth} -type ${find_type} 2>/dev/null | peco`
+    fi
+    echo $file
+}
+
+#
+# 指定したプログラムを開く．
+# ZLEを使用するので 'zle -N ...', 'bindkey ...' をしてから使うこと．
+#   $1: 開きたいプログラムのコマンド
+#   $2: プログラムに渡すコマンド
+#
+function _open_command() {
+    BUFFER="$1 $2"
+    CURSOR=$#BUFFER
+    zle accept-line
+}
+
+#
+# findで検索した結果をpecoで選択して指定したプログラムを開く
+# ZLEを使用するので 'zle -N ...', 'bindkey ...' をしてから使うこと
+#   $1 : 開きたいプログラムのコマンド
+#
+function _peco_find_open_command() {
+    local file="$(_peco_findselect . 5 f)"
+    if [ -n "${file}" ]; then
+        _open_command $1 ${file}
+    fi
+}
+
+##############################################################################
+# キーバインド付きの関数
+##############################################################################
+
+#
+# 過去に実行したコマンドを検索する．Ctrl-R にバインド．
+#
+function _peco_history_selection() {
+    BUFFER=`history -n 1 | tail -r  | awk '!a[$0]++' | peco`
+    CURSOR=$#BUFFER
+    zle reset-prompt
+}
+zle -N _peco_history_selection
+bindkey '^R' _peco_history_selection
+
+
+#
+# 過去に移動したことのあるディレクトリを選択する．Ctrl-G にバインド．
+#
+function _peco_cdr () {
+    local selected_dir="$(cdr -l | sed 's/^[0-9]\+ \+//' | peco --prompt="cdr >" --query "$LBUFFER")"
+    if [ -n "$selected_dir" ]; then
+        # "cd ~/desktop" としたいところが "cd 1 ~/desktop" となってしまう事象を回避する
+        # BUFFER="cd ${selected_dir}"
+        BUFFER="cd `echo $selected_dir | awk '{print$2}'`"
+        # return したらそのまま cd を実行するのではなく，return 時にコマンドを入力するように設定
+        # zle accept-line
+        CURSOR=$#BUFFER
+        zle reset-prompt
+    fi
+}
+zle -N _peco_cdr
+bindkey '^G' _peco_cdr
+
+
+##############################################################################
+# キーバインド無しの関数
+##############################################################################
+
+#
+# ll の結果を表示します。20 行以上あったら 21 行目以降は省略して表示する
+#
+function _ls_abbreviation() {
+    local line_number=`ls -U | wc -l`
+    local max_line_number=20
+    if [ $line_number -gt $max_line_number ]; then
+        ll | head -6
+        echo " ..."
+        ll | tail -5
+        echo " *** $(( $line_number - $max_line_number )) out of $line_number files are omitted ***"
+    else
+        ll
+    fi
+}
+
+#
+# mkdir でディレクトリを作成しcdそのディレクトリに移動する
+#   $1: 作成するディレクトリ
+#
+function _mkcd() {
+  if [[ -d $1 ]]; then
+    echo "$1 already exists!"
+    cd $1
+  else
+    mkdir -p $1 && cd $1
+  fi
+}
+
+#
+# "up"コマンドは，ディレクトリ階層を簡単に上れるようにするためのコマンドです．
+# "up"コマンドを単体で利用した場合，「cd ../」コマンドと同一です．
+# "up 2"のように，引数に数値を与えて実行した場合，その階層分だけ上に移動する事ができます．
+# By https://github.com/m-yamashita/up
+#
+function _up(){
+    cpath=./
+    for i in `seq 1 1 $1`; do
+        cpath=$cpath../
+    done
+    cd $cpath
+}
+
+# プロセスのkill
+# By http://k0kubun.hatenablog.com/entry/2014/07/06/033336
+function _peco_pkill() {
+    for pid in `ps aux | peco | awk '{ print $2 }'`; do
+        kill $pid
+        echo "Killed ${pid}"
+    done
+}
+
+
+##############################################################################
+# for Git
+# 参考: https://github.com/tick-taku/dotfiles
+##############################################################################
+
+#
+# ローカルの develop を最新にする
+#
+function _update_develop() {
+	local was_there="$(git branch --show-current)"
+	git fetch && git checkout develop && git rebase origin/develop
+	git checkout $was_there
+}
+
+#
+# git のブランチ名をクリップボードにコピー
+#
+function _git_branch() {
+    local selected_branch=""
+    while getopts ":lr" opt; do
+        case $opt in
+            l) selected_branch="$(git branch | peco)"; break ;;
+            r) selected_branch="$(git branch -r --sort=-authordate | perl -pe 's#origin/###' | peco)"; break ;;
+            ?)
+                echo "Unknown option selected.";
+                return 1
+                ;;
+        esac
+    done
+
+    if [ -z $selected_branch ]; then
+        echo "No branch selected."
+        return 1
+    fi
+
+    echo ${selected_branch##* } | pbcopy
+}
+
+#
+# git の全ブランチ一覧を表示して選択したブランチにチェックアウト
+#
+function _git_checkout() {
+    local selected_branch=""
+    local options=()
+
+    while getopts ":lrhsb:s:" opt; do
+            case $opt in
+            s) selected_branch=$OPTARG; break ;;
+            h) selected_branch="$(git log --oneline | peco | cut -d ' ' -f 1)"; break ;;
+            l) selected_branch="$(git branch | peco)"; break ;;
+            r) selected_branch="$(git branch -r --sort=-authordate | perl -pe 's#origin/###' | peco)"; break ;;
+            b)
+                selected_branch=$OPTARG
+                options+=("-b")
+                break
+                ;;
+            ?)
+                echo "Unknown option selected."
+                return 1
+                ;;
+        esac
+    done
+
+    if [ -z $selected_branch ]; then
+        echo "No branch selected."
+        return 1
+    fi
+
+    git checkout $options[@] ${selected_branch##* }
+}
+
+#
+# git diff を補完
+#
+function _git_diff() {
+    local selected_file="."
+    while getopts ":sf:" opt; do
+        case $opt in
+            f) selected_file="$OPTARG"; break ;;
+            s)
+                selected_file="$(git ls-files -m | peco)"
+                if [ -z $selected_file ]; then
+                    echo "No selected for diff."
+                    return 1
+                fi
+                echo "$selected_file" | pbcopy
+                break
+                ;;
+            ?)
+                echo "Unknown option selected."
+                return 1
+                ;;
+        esac
+    done
+    git diff $selected_file
+}
+
+#
+# git add を補完
+#
+function _git_add() {
+    local selected_file=""
+    local options=()
+
+    while getopts ":spaf:" opt; do
+        case $opt in
+            f) selected_file="$OPTARG" ; break ;;
+            a) selected_file="." ; break ;;
+            s)
+                selected_file="$(git status --porcelain -s | peco)"
+                if [ -z $selected_file ]; then
+                    echo "No selected for add."
+                    return 1
+                fi
+                break
+                ;;
+            p) options+=("-p") ;;
+            ?)
+                echo "Unknown option selected."
+                return 1
+                ;;
+        esac
+    done
+    git add $options[@] ${selected_file##* }
+}
+
+#
+# git restore を補完
+# add した差分を元に戻したいときに使用する．
+#
+function _git_restore() {
+    local selected_file=""
+    while getopts ":saf:" opt; do
+        case $opt in
+            f) selected_file="$OPTARG"; break ;;
+            a) selected_file="."; break ;;
+            s)
+                selected_file="$(git diff --name-only --diff-filter=M --staged | peco)"
+                if [ -z $selected_file ]; then
+                    echo "No selected for restore."
+                    return 1
+                fi
+                break
+                ;;
+            ?)
+                echo "Unknown option selected."
+                return 1
+                ;;
+        esac
+    done
+    git restore --staged $selected_file
+}
+
+#
+# git checkout <file> を補完
+#
+function _git_discard_diff() {
+    local selected_file=""
+
+    while getopts ":sf:" opt; do
+        case $opt in
+            f) selected_file="$OPTARG"; break ;;
+            s) selected_file="$(git ls-files -m | peco)"; break ;;
+            ?)
+                    echo "Unknown option selected."
+                    return 1
+                    ;;
+        esac
+    done
+
+    if [ -z $selected_file ]; then
+        echo "No selected for restore."
+        return 1
+    fi
+
+    echo -n "Really discard $selected_file changes? "; read answer
+        case $answer in
+            [yY] | [yY]es | YES )
+                git checkout $selected_file
+                ;;
+            * )
+                echo "No actions."
+                return 1;;
+      esac
+}
+
+#
+# 今のブランチを origin に push する
+#
+function _git_push_current_branch() {
+    local checkouted="$(g b --show-current)"
+    echo -n "Really push to origin/${checkouted}? "; read answer
+    case $answer in
+        [yY] | [yY]es | YES )
+            git push origin $(g b --show-current);;
+        * )
+            echo "No actions."
+            return 1;;
+    esac
+}
+
+#
+# コミットハッシュのヒストリーから cherry-pick する
+#
+function _git_cherry_pick() {
+    while getopts ":s:r:" opt; do
+        case $opt in
+            r)
+              local start="$(git log --oneline $OPTARG | peco | cut -d ' ' -f 1)"
+               local end="$(git log --oneline $OPTARG | peco | cut -d ' ' -f 1)"
+                git cherry-pick $start..$end
+                ;;                
+            s)
+              local commit="$(git log --oneline $OPTARG | peco | cut -d ' ' -f 1)"
+                git cherry-pick $commit
+                ;;
+            ?)
+                echo "Unknown option selected."
+                return 1
+                ;;
+        esac
+    done
+}
+
+#
+# コミットハッシュのヒストリーから rebase -i する
+#
+function _git_rebase_interactive() {
+	local start="$(git log --oneline $OPTARG | peco | cut -d ' ' -f 1)"
+	git rebase -i $start
+}
+
+#
+# コミットハッシュのヒストリーから bisect する
+#
+function _git_bisect() {
+    while getopts ":sbgr" opt; do
+        case $opt in
+            b) git bisect bad ;;
+            g) git bisect good ;;
+            r) git bisect reset ;;
+            s)
+                local bad="$(git log --oneline | peco | cut -d ' ' -f 1)"
+                local good="$(git log --oneline | peco | cut -d ' ' -f 1)"
+                git bisect start $bad $good
+                ;;
+            ?)
+                echo "Unknown option selected."
+                return 1
+                ;;
+        esac
+    done
+}
+
+#
+# コミットのハッシュ値取得
+#
+function _git_commit_hash() {
+	git log --oneline | peco | cut -d ' ' -f 1
+}

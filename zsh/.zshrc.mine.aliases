@@ -1,0 +1,29 @@
+
+##############################################################################
+# エイリアス
+##############################################################################
+alias reload='source ~/.zshrc'
+alias vim='env LANG=ja_JP.UTF-8 /Applications/MacVim.app/Contents/MacOS/Vim "$@"'
+
+##############################################################################
+# 自作関数のエイリアス
+##############################################################################
+# for zsh
+alias mkcd='_mkcd'
+alias up='_up'
+alias pk="_peco_pkill"
+
+# for Git
+alias ud='_update_develop'
+alias b='_git_branch'
+alias ch='_git_checkout''
+alias di='_git_diff
+alias a='_git_add'
+alias r='_git_restore'
+alias dd='_git_discard_diff'
+alias po='_git_push_current_branch'
+# alias pl='_git_pull'
+alias cp='_git_cherry_pick'
+alias rbi='_git_rebase_interactive'
+alias bs='_git_bisect'
+alias gh='_git_commit_hash C'
