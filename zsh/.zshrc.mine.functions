@@ -329,11 +329,11 @@ function _git_discard_diff() {
 # 今のブランチを origin に push する
 #
 function _git_push_current_branch() {
-    local checkouted="$(g b --show-current)"
+    local checkouted="$(git branch --show-current)"
     echo -n "Really push to origin/${checkouted}? "; read answer
     case $answer in
         [yY] | [yY]es | YES )
-            git push origin $(g b --show-current);;
+            git push origin $(git branch --show-current);;
         * )
             echo "No actions."
             return 1;;
