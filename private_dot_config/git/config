@@ -1,9 +1,6 @@
 [user]
 	name = yb173
 	email = 56855963+yb173@users.noreply.github.com
-[core]
-	# zsh で EDITOR を決めたら消す
-	editor = nvim
 [init]
 	defaultBranch = main
 [ghq]
