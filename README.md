@@ -18,6 +18,7 @@
 | `run_onchange_macos-defaults.sh` | （置かない。chezmoi が実行する） | macOS の設定（`defaults write`） |
 | `Brewfile` | （置かない） | Homebrew で入れるもの |
 | `AGENTS.md`・`CLAUDE.md` | （置かない） | このリポジトリで作業する AI エージェント向けの説明 |
+| `.github/` | （置かない） | GitHub Actions（gitleaks で秘密情報を調べる、`actions.lock` を確かめる）と Dependabot |
 | `.chezmoi.toml.tmpl` | `~/.config/chezmoi/chezmoi.toml` | chezmoi の設定（このリポジトリの場所） |
 
 - `~/.config` は自分だけが読める権限（`700`）なので、リポジトリでは `private_dot_config` と書く

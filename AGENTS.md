@@ -44,4 +44,6 @@ Claude Code は、対話のシェルの関数・エイリアス・オプショ�
 ## 変更の出し方
 
 - main に直接 push しない。issue に問題と方針を書き、PR の本文の先頭に `Closes #番号` を書く。issue は #1 のサブ issue にする
+- PR では GitHub Actions が gitleaks で秘密情報を調べる。public のリポジトリなので、見つかったら PR をマージせず、秘密情報を無効にしてから直す
+- ワークフロー（`.github/workflows/`）を変えたら、`gh actions-lock` で `actions.lock` を更新する（PR で `verify-lockfile` が確かめる）。Action は版のタグで書く
 - issue・PR・コミットメッセージ・コメントは日本語で書く
