@@ -1,0 +1,10 @@
+[user]
+	name = yb173
+	email = 56855963+yb173@users.noreply.github.com
+[core]
+	# Neovim の設定を作り直すときに nvim に替え、zsh で EDITOR を決めたら消す
+	editor = vim -c \"set fenc=utf-8\"
+[init]
+	defaultBranch = main
+[ghq]
+	root = ~/ghq
