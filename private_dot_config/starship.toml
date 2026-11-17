@@ -1,0 +1,6 @@
+# starship（プロンプト）の設定。書いていないものは既定のまま。項目は https://starship.rs/config/
+
+# Google Cloud のアカウントを出さない。既定では、gcloud にログインしていると、どのディレクトリでも
+# メールアドレスが出る。今のアカウントは gcloud config list で見る
+[gcloud]
+disabled = true
