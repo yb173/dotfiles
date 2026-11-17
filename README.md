@@ -9,6 +9,7 @@
 | `dot_zshenv` | `~/.zshenv` | zsh の設定の場所（`ZDOTDIR`）を決めるだけ |
 | `private_dot_config/zsh/` | `~/.config/zsh/` | zsh（`.zprofile`・`.zshrc`・エイリアス・関数） |
 | `.chezmoiexternal.toml` | `~/.local/share/zsh/plugins/` | zsh のプラグイン（chezmoi が GitHub から取ってくる） |
+| `private_dot_config/starship.toml` | `~/.config/starship.toml` | starship（プロンプト）。Google Cloud のアカウントを出さないことと、記号に Nerd Font の文字を使わないこと（node の記号など）だけで、ほかは既定のまま |
 | `private_dot_config/git/` | `~/.config/git/` | git |
 | `private_dot_config/nvim/` | `~/.config/nvim/` | Neovim |
 | `private_dot_config/ghostty/` | `~/.config/ghostty/` | Ghostty |
