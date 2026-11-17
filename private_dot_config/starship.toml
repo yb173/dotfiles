@@ -4,3 +4,24 @@
 # メールアドレスが出る。今のアカウントは gcloud config list で見る
 [gcloud]
 disabled = true
+
+# 以下は、Nerd Font の文字を記号に使わないための設定（starship preset no-nerd-font の中身）。
+# Nerd Font の文字を持たないフォントのターミナル（VS Code の MyricaM など）では、四角になってしまうため
+[azure]
+symbol = "☁️ "
+
+[battery]
+full_symbol = "• "
+charging_symbol = "⇡ "
+discharging_symbol = "⇣ "
+unknown_symbol = "❓ "
+empty_symbol = "❗ "
+
+[erlang]
+symbol = "ⓔ "
+
+[nodejs]
+symbol = "[⬢](bold green) "
+
+[pulumi]
+symbol = "🧊 "
