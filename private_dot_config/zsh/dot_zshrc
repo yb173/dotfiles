@@ -1,0 +1,102 @@
+# 対話のシェルで読む。オプション・補完・キー操作・ツール・エイリアス・関数・プラグイン
+# 環境変数と PATH は .zprofile。この Mac だけの設定は local.zsh（リポジトリに入れない）
+# prezto が決めていたもののうち、使っていたものをここに書いた
+
+ZSH_PLUGIN_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/zsh/plugins"
+ZSH_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/zsh"
+[[ -d $ZSH_CACHE_DIR ]] || mkdir -p $ZSH_CACHE_DIR
+
+# --- 履歴 ---------------------------------------------------------------------
+HISTFILE="${XDG_STATE_HOME:-$HOME/.local/state}/zsh/history"
+[[ -d ${HISTFILE:h} ]] || mkdir -p ${HISTFILE:h}
+HISTSIZE=10000
+SAVEHIST=10000
+setopt extended_history       # 実行した時刻も残す
+setopt share_history          # ほかのシェルと履歴を分け合う
+setopt hist_expire_dups_first # あふれたら、重複したものから消す
+setopt hist_ignore_dups hist_ignore_all_dups hist_find_no_dups hist_save_no_dups
+setopt hist_ignore_space      # 空白で始めたコマンドは残さない
+setopt hist_verify            # !! などを展開したら、実行する前に見せる
+
+# --- ディレクトリ ---------------------------------------------------------------
+setopt auto_cd                # ディレクトリ名だけで cd する
+setopt auto_pushd pushd_ignore_dups pushd_silent pushd_to_home
+setopt cdable_vars
+
+# --- そのほかのオプション -------------------------------------------------------
+setopt extended_glob no_case_glob
+setopt interactive_comments   # 対話でも # 以降をコメントにする
+setopt rc_quotes              # '' で ' を書ける
+setopt combining_chars
+setopt no_clobber             # > で既にあるファイルを上書きしない（>| で上書きする）
+setopt correct                # コマンド名の打ち間違いを直すか聞く
+setopt long_list_jobs auto_resume no_bg_nice no_hup no_check_jobs
+setopt no_flow_control        # Ctrl-S・Ctrl-Q で端末を止めない
+setopt path_dirs
+
+# --- 補完 -----------------------------------------------------------------------
+fpath=("$ZSH_PLUGIN_DIR/zsh-completions/src" $fpath)
+autoload -Uz compinit
+compinit -d "$ZSH_CACHE_DIR/zcompdump"
+
+setopt complete_in_word always_to_end
+zstyle ':completion:*' menu select
+# 大文字と小文字を区別しない。. _ - の前後を補う
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+# 見つからなければ、近い候補を出す
+zstyle ':completion:*' completer _complete _match _approximate
+zstyle ':completion:*:match:*' original only
+zstyle -e ':completion:*:approximate:*' max-errors 'reply=($((($#PREFIX+$#SUFFIX)/3>7?7:($#PREFIX+$#SUFFIX)/3))numeric)'
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*:matches' group yes
+zstyle ':completion:*' verbose yes
+zstyle ':completion:*:descriptions' format ' %F{yellow}-- %d --%f'
+zstyle ':completion:*:corrections' format ' %F{green}-- %d (errors: %e) --%f'
+zstyle ':completion:*:messages' format ' %F{purple} -- %d --%f'
+zstyle ':completion:*:warnings' format ' %F{red}-- no matches found --%f'
+zstyle ':completion:*:default' list-colors 'di=34' 'ln=35' 'so=32' 'pi=33' 'ex=31' 'bd=36;01' 'cd=33;01' 'su=31;40;07' 'sg=36;40;07' 'tw=32;40;07' 'ow=33;40;07'
+zstyle ':completion:*' squeeze-slashes true
+zstyle ':completion::complete:*' use-cache on
+zstyle ':completion::complete:*' cache-path "$ZSH_CACHE_DIR/zcompcache"
+zstyle ':completion:*:*:cd:*' tag-order local-directories directory-stack path-directories
+zstyle ':completion:*:*:kill:*' menu yes select
+zstyle ':completion:*:*:kill:*' force-list always
+zstyle ':completion:*:*:*:*:processes' command 'ps -u $LOGNAME -o pid,user,command -w'
+zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#) ([0-9a-z-]#)*=01;36=0=01'
+
+# --- キー操作（Emacs） ------------------------------------------------------------
+bindkey -e
+# 単語の区切りに / と = を含める（Ctrl-W でパスを 1 段ずつ消せる）
+WORDCHARS='*?_-.[]~&;!#$%^(){}<>'
+autoload -Uz edit-command-line
+zle -N edit-command-line
+bindkey '^X^E' edit-command-line  # 入力中のコマンドを $EDITOR で編集する
+bindkey '^Q' push-line-or-edit    # 入力中のコマンドをしまって、別のコマンドを先に実行する
+# Ctrl・Option と左右の矢印で、単語ごとに動く
+bindkey '^[[1;5C' forward-word '^[[1;5D' backward-word '^[[1;3C' forward-word '^[[1;3D' backward-word
+
+# --- ツール ---------------------------------------------------------------------
+eval "$(mise activate zsh)"
+source <(fzf --zsh)              # Ctrl-R で履歴、Ctrl-T でファイル、Alt-C でディレクトリを選ぶ
+eval "$(starship init zsh)"
+eval "$(zoxide init zsh)"        # z <名前の一部> で移る。zi で選んで移る
+
+# --- エイリアスと関数 -------------------------------------------------------------
+source "$ZDOTDIR/aliases.zsh"
+for f in "$ZDOTDIR"/functions/*.zsh(N); do
+  source "$f"
+done
+unset f
+
+# --- この Mac だけの設定 ----------------------------------------------------------
+[[ -r "$ZDOTDIR/local.zsh" ]] && source "$ZDOTDIR/local.zsh"
+
+# --- プラグイン（ほかのウィジェットを作ったあとに読む） ------------------------------
+source "$ZSH_PLUGIN_DIR/zsh-autosuggestions/zsh-autosuggestions.zsh"
+source "$ZSH_PLUGIN_DIR/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+# zsh-syntax-highlighting のあとに読む（README のとおり）
+source "$ZSH_PLUGIN_DIR/zsh-history-substring-search/zsh-history-substring-search.zsh"
+# 上下の矢印と Ctrl-P・Ctrl-N で、入力中の文字を含む履歴をたどる
+bindkey '^[[A' history-substring-search-up '^[OA' history-substring-search-up
+bindkey '^[[B' history-substring-search-down '^[OB' history-substring-search-down
+bindkey '^P' history-substring-search-up '^N' history-substring-search-down

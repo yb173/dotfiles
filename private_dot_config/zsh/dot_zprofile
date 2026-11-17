@@ -1,0 +1,25 @@
+# ログインシェル（ターミナルを開いたとき、zsh -l）で読む。環境変数と PATH
+
+export LANG=en_US.UTF-8
+export EDITOR=nvim
+export VISUAL=nvim
+export PAGER=less
+# 検索で大文字と小文字を区別しない、色を通す、など（prezto と同じ）
+export LESS='-g -i -M -R -S -w -X -z-4'
+
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
+# PATH の重複を除く
+typeset -U path
+export PNPM_HOME="$HOME/Library/pnpm"
+path=(
+  $PNPM_HOME/bin
+  $PNPM_HOME
+  /opt/homebrew/opt/libpq/bin  # psql・pg_dump（libpq は keg-only）
+  $HOME/.cargo/bin             # Rust（rustup）
+  $path
+)
+
+# 対話でないシェルでも mise の言語を使えるように、shims を PATH に足す
+# 対話のシェルでは、.zshrc の mise activate が PATH を直接書き換える
+eval "$(mise activate zsh --shims)"

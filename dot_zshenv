@@ -1,0 +1,3 @@
+# zsh がいつも読むファイル（スクリプトの zsh -c も）。zsh の設定は ~/.config/zsh/ に置く
+# XDG の変数は決めない。macOS では、決めると読む場所を変えるツールがあるため
+export ZDOTDIR="$HOME/.config/zsh"
