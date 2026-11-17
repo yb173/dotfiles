@@ -1,0 +1,8 @@
+{
+  "plugins": {
+    "iceberg.vim": {
+      "rev": "23835d5ed696436f716cbfdb56a93a7850fe3b18",
+      "src": "https://github.com/cocopon/iceberg.vim"
+    }
+  }
+}
