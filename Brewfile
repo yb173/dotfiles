@@ -32,3 +32,4 @@ brew "webp" # cwebp
 cask "ghostty"
 cask "karabiner-elements"
 cask "font-myricam" # VS Code で使っている
+cask "font-hackgen" # Ghostty で使っている（HackGen35）
