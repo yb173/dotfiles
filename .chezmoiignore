@@ -1,3 +1,6 @@
 # ~ に置かないファイル（リポジトリにだけあるもの）
 Brewfile
 README.md
+# AI エージェント向けの説明。~/CLAUDE.md があると、ホームの下のすべてのプロジェクトで読まれてしまう
+AGENTS.md
+CLAUDE.md
