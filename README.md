@@ -84,9 +84,20 @@
 | アプリが `~` のファイルを書き換えた（Karabiner の画面で変えた、Neovim のプラグインを更新した など） | `chezmoi re-add` でリポジトリに戻す。ずれは `chezmoi status` でわかる |
 | `~` に新しく設定ファイルを足す | `chezmoi add <ファイル>` |
 | Homebrew で入れるものを増やす・減らす | `Brewfile` を直して `brew bundle --file Brewfile`。Brewfile にないものは `brew bundle cleanup --file Brewfile` で一覧に出る（消すときは `--force`） |
-| zsh のプラグインの版を上げる | `.chezmoiexternal.toml` の URL の版を変えて `chezmoi apply` |
 | macOS の設定を変える | `run_onchange_macos-defaults.sh` を直して `chezmoi apply`（中身が変わると実行される）。設定の名前は、画面で変える前と後の `defaults read` を比べて調べる |
 | zsh の設定を読み直す | `reload`（`exec zsh`） |
+
+## 版を上げる
+
+ものによって上げ方が違う。`~` のファイルに版が書いてあるものは、上げたあと `chezmoi re-add` でリポジトリに戻して PR にする。
+
+| もの | 上げ方 | リポジトリ |
+| --- | --- | --- |
+| Homebrew で入れた CLI とフォント（chezmoi・Neovim なども） | `brew update` のあと `brew upgrade`。上がるものは `brew outdated` で見る | 変わらない（Brewfile は版を書かない） |
+| Ghostty・Karabiner-Elements | アプリの中の更新で上がる。cask が「アプリが自分で更新する」（`auto_updates`）なので、`brew upgrade` は飛ばす。Homebrew で上げるなら `brew upgrade --greedy-auto-updates` | 変わらない |
+| node・python（mise） | `mise outdated --bump` で新しい版を見て、`mise upgrade --bump` で上げる。`--bump` がないと、`config.toml` に書いた版のまま上がらない。上げると `~/.config/mise/config.toml` の版が書き換わる | `chezmoi re-add` で戻す |
+| zsh のプラグイン | `.chezmoiexternal.toml` の URL の版（タグ）を変えて `chezmoi apply`。新しい版は各リポジトリのタグで見る | 直したファイルが変わる |
+| Neovim のプラグイン（iceberg） | Neovim で `:lua vim.pack.update()`。変わる中身が出るので、よければ `:write` で確定する。`~/.config/nvim/nvim-pack-lock.json` が書き換わる | `chezmoi re-add` で戻す |
 
 ## zsh で使える関数
 
