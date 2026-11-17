@@ -152,15 +152,37 @@ gbs() {
   esac
 }
 
+# origin の既定のブランチ（origin/HEAD）の名前を出す
+gdefault() {
+  local ref
+  if ! ref=$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD); then
+    print -u2 'origin/HEAD がない。git remote set-head origin --auto で作る'
+    return 1
+  fi
+  print -r -- "${ref#origin/}"
+}
+
+# 既定のブランチに移って origin に合わせてから、新しいブランチを作って移る（gnew ブランチ名）
+gnew() {
+  if (( $# != 1 )); then
+    print -u2 'gnew: 新しいブランチの名前を 1 つ渡す'
+    return 1
+  fi
+  # 既定のブランチに移る前に確かめる（移ってから失敗すると、元のブランチに戻らないため）
+  if git show-ref --verify --quiet "refs/heads/$1"; then
+    print -u2 "gnew: ブランチ $1 はもうある"
+    return 1
+  fi
+  local default
+  default=$(gdefault) || return 1
+  git switch "$default" && git fetch origin && git rebase "origin/$default" && git switch -c "$1"
+}
+
 # 今のブランチのまま、既定のブランチ（origin/HEAD）を origin に合わせる
 gsync() {
   local current=$(git branch --show-current)
   local default
-  if ! default=$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD); then
-    print -u2 'gsync: origin/HEAD がない。git remote set-head origin --auto で作る'
-    return 1
-  fi
-  default=${default#origin/}
+  default=$(gdefault) || return 1
   git fetch origin || return 1
   if [[ $current == $default ]]; then
     git rebase "origin/$default"
