@@ -1,0 +1,18 @@
+version: 2
+updates:
+  # GitHub Actions の版を自動で更新する。PR のあと、gh actions-lock で actions.lock も更新する
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"

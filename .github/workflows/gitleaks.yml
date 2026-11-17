@@ -1,0 +1,34 @@
+# 秘密情報（トークン・鍵・パスワードなど）がコミットに入っていないかを gitleaks で調べる
+# PR では PR のコミット、main への push では push したコミット、手で動かしたときは履歴全体を調べる
+# https://github.com/gitleaks/gitleaks-action（個人のアカウントのリポジトリなので、ライセンスキーは要らない）
+
+name: gitleaks
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  scan:
+    name: gitleaks
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # 見つかったときに PR にコメントする
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6.1.0
+        with:
+          # 履歴を全部取ってくる（gitleaks がコミットをさかのぼって調べるため）
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Scan with gitleaks
+        uses: gitleaks/gitleaks-action@v3.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
