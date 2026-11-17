@@ -1,0 +1,16 @@
+# Ghostty の設定。書ける項目は man 5 ghostty、確かめるのは ghostty +validate-config
+# 配色は Ghostty の既定のまま
+
+# VS Code と同じフォント。Nerd Font の記号は Ghostty が最初から持っている
+font-family = MyricaM M
+font-size = 18
+
+# 左の Option キーを Alt として扱う（fzf の Alt-C などのため）
+macos-option-as-alt = left
+
+# クイックターミナル（ホットキーで出し入れするウィンドウ）を、上から画面いっぱいに出す
+# F18 は、Karabiner が Control の 2 回押しから送る（karabiner.json）
+# global: のキーには、macOS のアクセシビリティの許可が要る
+keybind = global:f18=toggle_quick_terminal
+quick-terminal-position = top
+quick-terminal-size = 100%
