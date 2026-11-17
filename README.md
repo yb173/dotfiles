@@ -13,7 +13,7 @@
 | `private_dot_config/nvim/` | `~/.config/nvim/` | Neovim |
 | `private_dot_config/ghostty/` | `~/.config/ghostty/` | Ghostty |
 | `private_dot_config/private_karabiner/` | `~/.config/karabiner/` | Karabiner-Elements |
-| `private_dot_config/mise/` | `~/.config/mise/` | mise（node・python の版） |
+| `private_dot_config/mise/` | `~/.config/mise/` | mise（node・python。最新を使う） |
 | `run_onchange_macos-defaults.sh` | （置かない。chezmoi が実行する） | macOS の設定（`defaults write`） |
 | `Brewfile` | （置かない） | Homebrew で入れるもの |
 | `AGENTS.md`・`CLAUDE.md` | （置かない） | このリポジトリで作業する AI エージェント向けの説明 |
@@ -95,7 +95,7 @@
 | --- | --- | --- |
 | Homebrew で入れた CLI とフォント（chezmoi・Neovim なども） | `brew update` のあと `brew upgrade`。上がるものは `brew outdated` で見る | 変わらない（Brewfile は版を書かない） |
 | Ghostty・Karabiner-Elements | アプリの中の更新で上がる。cask が「アプリが自分で更新する」（`auto_updates`）なので、`brew upgrade` は飛ばす。Homebrew で上げるなら `brew upgrade --greedy-auto-updates` | 変わらない |
-| node・python（mise） | `mise outdated --bump` で新しい版を見て、`mise upgrade --bump` で上げる。`--bump` がないと、`config.toml` に書いた版のまま上がらない。上げると `~/.config/mise/config.toml` の版が書き換わる | `chezmoi re-add` で戻す |
+| node・python（mise） | `mise upgrade` で最新を入れる（設定は `latest`）。新しい版があるかは `mise outdated` で見る。mise は入っている中で最新の版を使うので、`mise upgrade` するまでは今の版のまま。古い版は 1 日後に消える。プロジェクトに `.node-version` などがあれば、そちらの版を使う | 変わらない |
 | zsh のプラグイン | `.chezmoiexternal.toml` の URL の版（タグ）を変えて `chezmoi apply`。新しい版は各リポジトリのタグで見る | 直したファイルが変わる |
 | Neovim のプラグイン（iceberg） | Neovim で `:lua vim.pack.update()`。変わる中身が出るので、よければ `:write` で確定する。`~/.config/nvim/nvim-pack-lock.json` が書き換わる | `chezmoi re-add` で戻す |
 
