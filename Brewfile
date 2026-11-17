@@ -2,6 +2,7 @@
 # 入れたものは、ここに足す。ここにないものは brew bundle cleanup で一覧に出る
 
 # シェルと git
+brew "bash" # bash 5。#!/usr/bin/env bash のスクリプトが macOS の bash 3.2 で動かないように
 brew "git"
 brew "gh"
 brew "ghq"
