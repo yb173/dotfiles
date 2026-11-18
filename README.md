@@ -24,9 +24,11 @@
 | `.chezmoi.toml.tmpl` | `~/.config/chezmoi/chezmoi.toml` | chezmoi の設定（このリポジトリの場所） |
 
 - `~/.config` は自分だけが読める権限（`700`）なので、リポジトリでは `private_dot_config` と書く
-- この Mac だけの設定と秘密情報は、次の 2 つに書き、リポジトリに入れない（`.chezmoiignore` に書いてあるので、`chezmoi add` でも入らない）。秘密情報を書くなら `chmod 600` にするか、macOS のキーチェーンから取り出す（`security find-generic-password -s <名前> -w`）
+- この Mac だけの設定と秘密情報は、次のファイルに書き、リポジトリに入れない（`.chezmoiignore` に書いてあるので、`chezmoi add` でも入らない）。秘密情報を書くなら `chmod 600` にするか、macOS のキーチェーンから取り出す（`security find-generic-password -s <名前> -w`）
   - `~/.config/zsh/local.zprofile`: 環境変数・PATH・秘密情報の `export`（GCP の SDK の PATH など）。`.zprofile` が、あれば最後に読む。ログインシェルなら、対話でなくても（`zsh -l -c`）読まれる
   - `~/.config/zsh/local.zsh`: 補完・エイリアス・関数（GCP の SDK の補完など）。`.zshrc` が、あれば最後に読む
+  - `~/.config/git/config.local`: git の名前とメール（`[user]`）など。`~/.config/git/config` が、あれば最後に読む（`[include]`）。名前とメールがないと、コミットのときに「Please tell me who you are」で止まる（`user.useConfigOnly`。Mac の名前から作ったメールでコミットしないように）
+    - 書くときは `git config --file ~/.config/git/config.local …` を使う。git が勧める `git config --global` は、`~/.gitconfig` がないと chezmoi が置いた `~/.config/git/config` に書く
   - `.zshenv` 用は作らない。`.zshenv` はスクリプトの zsh も含めてすべての zsh が読み、macOS では後から `/etc/zprofile` の `path_helper` が PATH を並べ直すため
 - `run_onchange_` のスクリプトは、中身が前に実行したときと変わると、`chezmoi apply` が実行する。Brewfile と mise のスクリプトには、そのファイルのハッシュが書かれる（`.tmpl` なので、chezmoi が描くときに入れる）ので、そのファイルが変わると実行される
 
@@ -58,6 +60,7 @@
    3. mise で node と python を入れる
 
 4. 画面で許可を出し、残りを手で済ませる
+   - git の名前とメールを `~/.config/git/config.local` に書く: `git config --file ~/.config/git/config.local user.name <名前>` と `git config --file ~/.config/git/config.local user.email <メール>`
    - Karabiner-Elements を開き、入力監視と、ドライバー（システム設定 → 一般 → ログイン項目と機能拡張）を許可する
    - Ghostty を開き、アクセシビリティを許可する（Control の 2 回押しで出し入れするホットキーのため）。許可したら Ghostty を終了して開き直す。ログイン項目にも Ghostty を足す（起動していないとホットキーが効かない）
    - gh の拡張を入れる（拡張は gh の設定ファイルに残らない）: `gh extension install github/gh-actions-lock`
@@ -92,6 +95,7 @@ chezmoi apply
 
 - `chezmoi update` だけでも、pull と `chezmoi apply` を続けてする。ただ、`chezmoi apply` はその Mac の設定をその場で書き換えるので、先に差分を見る
 - その Mac で `~` のファイルを直接直していると、`chezmoi apply` が上書きしてよいか聞く。残したいときは上書きせず、`chezmoi re-add` でリポジトリに戻して PR にする
+- その Mac に `~/.config/git/config.local`（git の名前とメール）がなければ、`chezmoi apply` の前に作る（書き方は上の「何がどこに置かれるか」）。git の設定には名前とメールを書いていないので、ないとコミットのときに止まる
 - `chezmoi apply` は、変わったものに合わせて次もする
   - Brewfile が変わっていれば、`~` を書き換える前に、足りないものを `brew bundle` で入れる（入っているものの版は上げない）
   - zsh のプラグインの版が変わっていれば、取り直す
