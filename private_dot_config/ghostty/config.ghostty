@@ -2,7 +2,7 @@
 # 配色は Ghostty の既定のまま
 
 # 白源（HackGen）の 35 版。英字（Hack）と日本語（源柔ゴシック）の幅が 3:5 で、1:2 の版より英字が大きい
-# （Brewfile の font-hackgen）。Nerd Font の記号は Ghostty が最初から持っているので、NF 版は使わない
+# （Brewfile.apps の font-hackgen）。Nerd Font の記号は Ghostty が最初から持っているので、NF 版は使わない
 # MyricaM（VS Code のフォント）は、フォントの中の descender の符号が逆で、Ghostty では上下の行が重なるので使わない
 font-family = HackGen35
 # iTerm2（MesloLGS NF 18pt）と同じ見た目の大きさ（H の高さが 13.1pt）

@@ -44,6 +44,8 @@ Claude Code は、対話のシェルの関数・エイリアス・オプショ�
 - フックは `add-zsh-hook` で足し、フックの関数の中で `[[ -o interactive ]] || return 0` を確かめる。`chpwd()` などを直接上書きしない
 - コマンドと同じ名前のエイリアスは、オプションを足すだけのものにする（`ls -G` など）。確認を聞くもの（`rm -i` など）は `[[ -z $CLAUDECODE ]]` のときだけ作る
   - 理由: Claude Code のシェルでは、聞かれても答えられない
+- エージェントのコマンドの動きを変えるオプション（`no_clobber` など）も、`[[ -z $CLAUDECODE ]]` のときだけ入れる
+  - 理由: オプションも写し取られる。`no_clobber` が入っていると、エージェントの `>` が「file exists」で失敗する
 - 新しい名前を付ける前に、`whence -wa <名前>` が `none` になること（コマンドや zsh の組み込みとぶつからないこと）を確かめる。git の補助は `g` で始める（`private_dot_config/zsh/functions/git.zsh`）
 
 ## 入れないもの
@@ -57,6 +59,8 @@ Claude Code は、対話のシェルの関数・エイリアス・オプショ�
 - main に直接 push しない。issue に問題と方針を書き、PR の本文の先頭に `Closes #番号` を書く。issue は #1 のサブ issue にする
   - main はルールセットで守っている（PR を通さない push・force push・削除を止める）。リポジトリの管理者は止めない設定なので、利用者の認証で動くエージェントは push できてしまう。できても push しない
 - 版を上げる PR は bot も作る: GitHub Actions は Dependabot、zsh のプラグインは Renovate。どちらも自動ではマージしない
+  - Dependabot は `actions.lock` を更新しないので、その PR は `verify-lockfile` で失敗する。PR のブランチで `gh actions-lock` を実行して push する（README の「版を上げる」）
+  - Action のメジャー版は Dependabot が PR にしない。上げるときは、リリースノートを読んでから手で上げる
 - PR では GitHub Actions が gitleaks で秘密情報を調べる。public のリポジトリなので、見つかったら PR をマージせず、秘密情報を無効にしてから直す
 - ワークフロー（`.github/workflows/`）を変えたら、`gh actions-lock` で `actions.lock` を更新する（PR で `verify-lockfile` が確かめる）。Action は版のタグで書く
 - issue・PR・コミットメッセージ・コメントは日本語で書く

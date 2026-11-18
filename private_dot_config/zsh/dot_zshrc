@@ -28,7 +28,11 @@ setopt extended_glob no_case_glob
 setopt interactive_comments   # 対話でも # 以降をコメントにする
 setopt rc_quotes              # '' で ' を書ける
 setopt combining_chars
-setopt no_clobber             # > で既にあるファイルを上書きしない（>| で上書きする）
+# > で既にあるファイルを上書きしない（>| で上書きする）。Claude Code のシェル（CLAUDECODE=1）では付けない。
+# Claude Code は対話のシェルのオプションも写し取って使うので、エージェントの > が「file exists」で失敗するため
+if [[ -z $CLAUDECODE ]]; then
+  setopt no_clobber
+fi
 setopt correct                # コマンド名の打ち間違いを直すか聞く
 setopt long_list_jobs auto_resume no_bg_nice no_hup no_check_jobs
 setopt no_flow_control        # Ctrl-S・Ctrl-Q で端末を止めない

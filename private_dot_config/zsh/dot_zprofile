@@ -12,12 +12,13 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 # PATH の重複を除く
 typeset -U path
 export PNPM_HOME="$HOME/Library/pnpm"
+# (N-/) は、そのディレクトリがないときは入れない
 path=(
-  $HOME/.local/bin(N-/)        # Claude Code（ネイティブ版）・uv tool など。(N-/) で、ないときは入れない
-  $PNPM_HOME/bin
-  $PNPM_HOME
+  $HOME/.local/bin(N-/)             # Claude Code（ネイティブ版）・uv tool など
+  $PNPM_HOME/bin(N-/)
+  $PNPM_HOME(N-/)
   /opt/homebrew/opt/libpq/bin(N-/)  # psql・pg_dump（libpq は keg-only。Brewfile.apps で入れたときだけ）
-  $HOME/.cargo/bin             # Rust（rustup）
+  $HOME/.cargo/bin(N-/)             # Rust（rustup）
   $path
 )
 
