@@ -1,5 +1,7 @@
 # git の補助。名前は g で始め、oh-my-zsh の git のエイリアスに合わせる（gst・ga・gd・gco・gcp・grbi など）
 # 選ぶところは fzf を使う（Tab で複数選べるものもある）。引数は、そのまま git に渡す
+# ファイルの一覧は NUL 区切りで受け渡す（git は -z、fzf は --read0 --print0）。
+# -z なら、git は日本語や空白の入った名前を引用符で囲まずに出す
 
 # 状態を見る
 gst() {
@@ -16,7 +18,8 @@ ghash() {
 # 差分を見る。-s で変更したファイルを選ぶ（パスはクリップボードにも入れる）
 gd() {
   if [[ $1 == -s ]]; then
-    local file=$(git ls-files -m | fzf --preview 'git diff --color=always -- {}')
+    # git ls-files のパスは、今いるディレクトリから数える。最後の NUL を取る
+    local file=${"$(git ls-files -m -z | fzf --read0 --print0 --preview 'git diff --color=always -- {}')"%$'\0'}
     [[ -n $file ]] || return 1
     print -rn -- "$file" | pbcopy
     git diff -- "$file"
@@ -29,9 +32,13 @@ gd() {
 ga() {
   if [[ $1 == -s ]]; then
     shift
-    local files=(${(f)"$(git status --porcelain | fzf -m --preview 'git diff --color=always -- {2..}' | cut -c4-)"})
+    # git status のパスは、今いるディレクトリではなく、リポジトリのいちばん上から数える。
+    # そのため、:/（いちばん上から数えるという意味）を付けて渡す。--no-renames で、名前を変えたファイルを 1 行にしない
+    local files=(${(0)"$(git status --porcelain -z --no-renames |
+      fzf -m --read0 --print0 --preview 'f={}; git diff --color=always -- ":/${f:3}"')"})
     (( $#files )) || return 1
-    git add "$@" -- $files
+    # 各行の先頭 3 文字（状態の 2 文字と空白）を :/ に置き換える
+    git add "$@" -- ${files/#???/:/}
   else
     git add "$@"
   fi
@@ -40,9 +47,11 @@ ga() {
 # ステージを取り消す（git restore --staged）。-s でファイルを選ぶ
 grst() {
   if [[ $1 == -s ]]; then
-    local files=(${(f)"$(git diff --staged --name-only | fzf -m --preview 'git diff --staged --color=always -- {}')"})
+    # git diff --name-only のパスも、リポジトリのいちばん上から数えるので、:/ を付けて渡す
+    local files=(${(0)"$(git diff --staged --name-only -z |
+      fzf -m --read0 --print0 --preview 'git diff --staged --color=always -- :/{}')"})
     (( $#files )) || return 1
-    git restore --staged -- $files
+    git restore --staged -- ${files/#/:/}
   else
     git restore --staged "$@"
   fi
@@ -52,7 +61,7 @@ grst() {
 gdiscard() {
   local files
   if [[ $1 == -s ]]; then
-    files=(${(f)"$(git ls-files -m | fzf -m --preview 'git diff --color=always -- {}')"})
+    files=(${(0)"$(git ls-files -m -z | fzf -m --read0 --print0 --preview 'git diff --color=always -- {}')"})
   else
     files=("$@")
   fi
