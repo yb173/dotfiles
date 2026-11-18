@@ -8,13 +8,14 @@
   - アプリが `~` のファイルを書き換えたとき（Karabiner の画面、Neovim のプラグインの更新など）は、`chezmoi re-add` でリポジトリに戻す
 - ファイル名は chezmoi の決まりに従う: `dot_`（先頭の `.`）、`private_`（自分だけが読める権限）、`run_onchange_`（中身が変わったときに `chezmoi apply` が実行するスクリプト）
   - `~/.config` は `700` なので、その下に置くものは `private_dot_config/` に入れる
+  - スクリプトを、ほかのファイルが変わったときに実行させるには、`.tmpl` にして `{{ include "<ファイル>" | sha256sum }}` をコメントに書く（`run_onchange_before_brew-bundle.sh.tmpl` など）。`before_` は `~` を書き換える前、`after_` は後に実行する
 - リポジトリにだけ置き、`~` に置かないファイル（`README.md`・`Brewfile`・このファイルなど）は `.chezmoiignore` に書く
   - 理由: 書き忘れると `~` に置かれる。`~/CLAUDE.md` ができると、ホームの下のすべてのプロジェクトで Claude Code が読んでしまう
 - 外から取ってくるもの（zsh のプラグイン）は `.chezmoiexternal.toml` に、版を固定した URL で書く
 
 ## 置く前と後に確かめる
 
-- `chezmoi apply` は、この Mac の設定をその場で書き換え、`run_onchange_` のスクリプトも実行する（macOS の設定のスクリプトは Dock と Finder を再起動する）。置く前に `chezmoi diff` で差分を見る。`~/.zshenv` や macOS の設定のように影響が大きいものは、利用者に伝えてから置く
+- `chezmoi apply` は、この Mac の設定をその場で書き換え、`run_onchange_` のスクリプトも実行する（Brewfile が変わっていれば `brew bundle` で入れ、macOS の設定のスクリプトは Dock と Finder を再起動する）。置く前に `chezmoi diff` で差分を見る。`~/.zshenv` や macOS の設定のように影響が大きいものは、利用者に伝えてから置く
 - ファイルの種類ごとの確かめ方
   - zsh: `zsh -n <ファイル>` で構文を見る。`~/.zshenv` を替える前に `ZDOTDIR=~/.config/zsh zsh -il` で試す（今のシェルは変わらない）
   - シェルスクリプト: `sh -n`

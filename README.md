@@ -15,7 +15,9 @@
 | `private_dot_config/ghostty/` | `~/.config/ghostty/` | Ghostty |
 | `private_dot_config/private_karabiner/` | `~/.config/karabiner/` | Karabiner-Elements |
 | `private_dot_config/mise/` | `~/.config/mise/` | mise（node は LTS の 26 の中で最新、python は最新を使う） |
+| `run_onchange_before_brew-bundle.sh.tmpl` | （置かない。chezmoi が実行する） | Brewfile が変わったら、`~` を書き換える前に、足りないものを `brew bundle` で入れる |
 | `run_onchange_macos-defaults.sh` | （置かない。chezmoi が実行する） | macOS の設定（`defaults write`） |
+| `run_onchange_after_mise-install.sh.tmpl` | （置かない。chezmoi が実行する） | mise の設定が変わったら、置いたあとで `mise install` する |
 | `Brewfile` | （置かない） | Homebrew で入れるもの |
 | `AGENTS.md`・`CLAUDE.md` | （置かない） | このリポジトリで作業する AI エージェント向けの説明 |
 | `.github/` | （置かない） | GitHub Actions（gitleaks で秘密情報を調べる、`actions.lock` を確かめる）と Dependabot |
@@ -23,6 +25,7 @@
 
 - `~/.config` は自分だけが読める権限（`700`）なので、リポジトリでは `private_dot_config` と書く
 - この Mac だけの設定（GCP の SDK など）は `~/.config/zsh/local.zsh` に書き、リポジトリに入れない。`.zshrc` が、あれば読む
+- `run_onchange_` のスクリプトは、中身が前に実行したときと変わると、`chezmoi apply` が実行する。Brewfile と mise のスクリプトには、そのファイルのハッシュが書かれる（`.tmpl` なので、chezmoi が描くときに入れる）ので、そのファイルが変わると実行される
 
 ## 新しい Mac で揃える
 
@@ -40,33 +43,18 @@
    gh auth login
    ```
 
-3. このリポジトリを ghq の場所に clone し、chezmoi の設定ファイルを作る。まだ `~` には置かない（`--apply` を付けない）。初めて github.com に SSH でつなぐので、ホストの確認には `yes` と答える
+3. このリポジトリを ghq の場所に clone し、`~` に置く。初めて github.com に SSH でつなぐので、ホストの確認には `yes` と答える
 
    ```sh
-   chezmoi init --source ~/ghq/github.com/yb173/dotfiles git@github.com:yb173/dotfiles.git
+   chezmoi init --apply --source ~/ghq/github.com/yb173/dotfiles git@github.com:yb173/dotfiles.git
    ```
 
-4. Brewfile のものを入れる。Karabiner-Elements はインストーラーなので、管理者のパスワードを聞かれる
+   `chezmoi apply` は、次の順に進む。途中で失敗したら、直してから `chezmoi apply` をもう一度実行する（済んだスクリプトは、もう実行しない）
+   1. Brewfile のものを `brew bundle` で入れる。Karabiner-Elements はインストーラーなので、管理者のパスワードを聞かれる。先に入れるので、置いた `.zshrc` が、まだ入っていない mise や starship を呼ぶことはない
+   2. `~` に置き、zsh のプラグインを取ってきて、macOS の設定のスクリプトを実行する（Dock と Finder が再起動する）
+   3. mise で node と python を入れる
 
-   ```sh
-   brew bundle --file ~/ghq/github.com/yb173/dotfiles/Brewfile
-   ```
-
-5. `~` に置く。zsh のプラグインを取ってきて、macOS の設定のスクリプトを 1 回実行する（Dock と Finder が再起動する）
-
-   ```sh
-   chezmoi apply
-   ```
-
-   4 より先にすると、置いた `.zprofile`・`.zshrc` が、まだ入っていない mise や starship を呼び、次に開いたターミナルでエラーが出る
-
-6. mise で node と python を入れる
-
-   ```sh
-   mise install
-   ```
-
-7. 画面で許可を出し、残りを手で済ませる
+4. 画面で許可を出し、残りを手で済ませる
    - Karabiner-Elements を開き、入力監視と、ドライバー（システム設定 → 一般 → ログイン項目と機能拡張）を許可する
    - Ghostty を開き、アクセシビリティを許可する（Control の 2 回押しで出し入れするホットキーのため）。許可したら Ghostty を終了して開き直す。ログイン項目にも Ghostty を足す（起動していないとホットキーが効かない）
    - gh の拡張を入れる（拡張は gh の設定ファイルに残らない）: `gh extension install github/gh-actions-lock`
@@ -74,7 +62,7 @@
    - Neovim を初めて開くと、配色の iceberg を入れるか聞かれる。入れる版は `nvim-pack-lock.json` に書いてある
    - この Mac だけの設定があれば `~/.config/zsh/local.zsh` に書く
 
-8. Ghostty で新しいタブを開き、エラーが出ずにプロンプトが出ることを確かめる。`chezmoi doctor` と `chezmoi status`（何も出なければ揃っている）でも確かめる
+5. Ghostty で新しいタブを開き、エラーが出ずにプロンプトが出ることを確かめる。`chezmoi doctor` と `chezmoi status`（何も出なければ揃っている）でも確かめる
 
 ## 普段の直し方
 
@@ -85,7 +73,7 @@
 | 設定を直す | このリポジトリのファイルを直して `chezmoi apply`（前に `chezmoi diff` で差分を見る） |
 | アプリが `~` のファイルを書き換えた（Karabiner の画面で変えた、Neovim のプラグインを更新した など） | `chezmoi re-add` でリポジトリに戻す。ずれは `chezmoi status` でわかる |
 | `~` に新しく設定ファイルを足す | `chezmoi add <ファイル>` |
-| Homebrew で入れるものを増やす・減らす | `Brewfile` を直して `brew bundle --file Brewfile`。Brewfile にないものは `brew bundle cleanup --file Brewfile` で一覧に出る（消すときは `--force`） |
+| Homebrew で入れるものを増やす・減らす | `Brewfile` を直して `chezmoi apply`（Brewfile が変わると、足りないものを `brew bundle` で入れる）。Brewfile から消したものは消えないので、`brew bundle cleanup --file Brewfile` で一覧を見て、`--force` を付けて消す |
 | macOS の設定を変える | `run_onchange_macos-defaults.sh` を直して `chezmoi apply`（中身が変わると実行される）。設定の名前は、画面で変える前と後の `defaults read` を比べて調べる |
 | zsh の設定を読み直す | `reload`（`exec zsh`） |
 
@@ -101,14 +89,17 @@ chezmoi apply
 
 - `chezmoi update` だけでも、pull と `chezmoi apply` を続けてする。ただ、`chezmoi apply` はその Mac の設定をその場で書き換えるので、先に差分を見る
 - その Mac で `~` のファイルを直接直していると、`chezmoi apply` が上書きしてよいか聞く。残したいときは上書きせず、`chezmoi re-add` でリポジトリに戻して PR にする
-- zsh のプラグインの版が変わっていれば、`chezmoi apply` が取り直す。macOS の設定のスクリプトが変わっていれば、実行する（Dock と Finder が再起動する）
+- `chezmoi apply` は、変わったものに合わせて次もする
+  - Brewfile が変わっていれば、`~` を書き換える前に、足りないものを `brew bundle` で入れる（入っているものの版は上げない）
+  - zsh のプラグインの版が変わっていれば、取り直す
+  - macOS の設定のスクリプトが変わっていれば、実行する（Dock と Finder が再起動する）
+  - mise の設定が変わっていれば、置いたあとで `mise install` する
 
 `chezmoi apply` だけでは済まないもの:
 
 | 変わったもの | すること |
 | --- | --- |
-| `Brewfile` | `brew bundle --file ~/ghq/github.com/yb173/dotfiles/Brewfile`。Brewfile から消したものは、`brew bundle cleanup --file ~/ghq/github.com/yb173/dotfiles/Brewfile --force` で消す（Brewfile にないものは全部消えるので、先に `--force` なしで一覧を見る） |
-| mise の設定（ツールを足した、版を変えた） | `mise install` |
+| Brewfile から消したもの | `brew bundle cleanup --file ~/ghq/github.com/yb173/dotfiles/Brewfile --force` で消す（Brewfile にないものは全部消えるので、先に `--force` なしで一覧を見る） |
 | Neovim のプラグイン（`nvim-pack-lock.json`） | Neovim を開き直してから `:lua vim.pack.update(nil, { target = 'lockfile' })`。変わる中身が出るので、よければ `:write` で確定する |
 | zsh の設定 | 新しいタブを開くか、`reload` |
 | Ghostty の設定 | Ghostty で Cmd+Shift+,（設定を読み直す） |

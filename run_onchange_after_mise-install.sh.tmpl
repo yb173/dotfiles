@@ -1,0 +1,10 @@
+#!/bin/sh
+# mise の設定が変わったときに、chezmoi apply が設定を置いたあとで実行する。
+# chezmoi は、描いたスクリプトの中身が前に実行したときと違うと実行するので、設定のハッシュを書いておく
+# config.toml: {{ include "private_dot_config/mise/config.toml" | sha256sum }}
+#
+# 設定にあって、まだ入っていない版を入れる。
+# プロジェクトの .node-version などを読まないように、ホームで実行する
+set -eu
+cd "$HOME"
+mise install
