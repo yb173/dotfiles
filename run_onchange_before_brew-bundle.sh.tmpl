@@ -1,0 +1,9 @@
+#!/bin/sh
+# Brewfile が変わったときに、chezmoi apply が ~ を書き換える前に実行する。
+# chezmoi は、描いたスクリプトの中身が前に実行したときと違うと実行するので、Brewfile のハッシュを書いておく
+# Brewfile: {{ include "Brewfile" | sha256sum }}
+#
+# 足りないものを入れるだけ。入っているものの版は上げない（上げるのは brew upgrade）。
+# Brewfile から消したものも消さない（消すのは brew bundle cleanup --force）
+set -eu
+brew bundle install --no-upgrade --file {{ joinPath .chezmoi.sourceDir "Brewfile" | quote }}
