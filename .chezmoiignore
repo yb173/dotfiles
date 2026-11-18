@@ -4,3 +4,7 @@ README.md
 # AI エージェント向けの説明。~/CLAUDE.md があると、ホームの下のすべてのプロジェクトで読まれてしまう
 AGENTS.md
 CLAUDE.md
+
+# この Mac だけの設定（秘密情報も書く）。chezmoi add でディレクトリごと足しても、リポジトリに入らないようにする
+.config/zsh/local.zprofile
+.config/zsh/local.zsh

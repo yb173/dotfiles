@@ -24,7 +24,10 @@
 | `.chezmoi.toml.tmpl` | `~/.config/chezmoi/chezmoi.toml` | chezmoi の設定（このリポジトリの場所） |
 
 - `~/.config` は自分だけが読める権限（`700`）なので、リポジトリでは `private_dot_config` と書く
-- この Mac だけの設定（GCP の SDK など）は `~/.config/zsh/local.zsh` に書き、リポジトリに入れない。`.zshrc` が、あれば読む
+- この Mac だけの設定と秘密情報は、次の 2 つに書き、リポジトリに入れない（`.chezmoiignore` に書いてあるので、`chezmoi add` でも入らない）。秘密情報を書くなら `chmod 600` にするか、macOS のキーチェーンから取り出す（`security find-generic-password -s <名前> -w`）
+  - `~/.config/zsh/local.zprofile`: 環境変数・PATH・秘密情報の `export`（GCP の SDK の PATH など）。`.zprofile` が、あれば最後に読む。ログインシェルなら、対話でなくても（`zsh -l -c`）読まれる
+  - `~/.config/zsh/local.zsh`: 補完・エイリアス・関数（GCP の SDK の補完など）。`.zshrc` が、あれば最後に読む
+  - `.zshenv` 用は作らない。`.zshenv` はスクリプトの zsh も含めてすべての zsh が読み、macOS では後から `/etc/zprofile` の `path_helper` が PATH を並べ直すため
 - `run_onchange_` のスクリプトは、中身が前に実行したときと変わると、`chezmoi apply` が実行する。Brewfile と mise のスクリプトには、そのファイルのハッシュが書かれる（`.tmpl` なので、chezmoi が描くときに入れる）ので、そのファイルが変わると実行される
 
 ## 新しい Mac で揃える
@@ -60,7 +63,7 @@
    - gh の拡張を入れる（拡張は gh の設定ファイルに残らない）: `gh extension install github/gh-actions-lock`
    - 一度ログアウトしてログインし直す（キーリピートと外観は、ログインし直すと反映される）
    - Neovim を初めて開くと、配色の iceberg を入れるか聞かれる。入れる版は `nvim-pack-lock.json` に書いてある
-   - この Mac だけの設定があれば `~/.config/zsh/local.zsh` に書く
+   - この Mac だけの設定があれば、`~/.config/zsh/local.zprofile`（環境変数・PATH）と `~/.config/zsh/local.zsh`（補完・エイリアスなど）に書く
 
 5. Ghostty で新しいタブを開き、エラーが出ずにプロンプトが出ることを確かめる。`chezmoi doctor` と `chezmoi status`（何も出なければ揃っている）でも確かめる
 
@@ -75,7 +78,7 @@
 | `~` に新しく設定ファイルを足す | `chezmoi add <ファイル>` |
 | Homebrew で入れるものを増やす・減らす | `Brewfile` を直して `chezmoi apply`（Brewfile が変わると、足りないものを `brew bundle` で入れる）。Brewfile から消したものは消えないので、`brew bundle cleanup --file Brewfile` で一覧を見て、`--force` を付けて消す |
 | macOS の設定を変える | `run_onchange_macos-defaults.sh` を直して `chezmoi apply`（中身が変わると実行される）。設定の名前は、画面で変える前と後の `defaults read` を比べて調べる |
-| zsh の設定を読み直す | `reload`（`exec zsh`） |
+| zsh の設定を読み直す | `.zshrc` とそこから読むもの（エイリアス・関数・`local.zsh`）は `reload`（`exec zsh`）。`.zprofile` と `local.zprofile` は新しいタブを開く（`exec zsh` はログインシェルではないので読み直さない） |
 
 ## ほかの Mac で取り込む
 
@@ -101,7 +104,7 @@ chezmoi apply
 | --- | --- |
 | Brewfile から消したもの | `brew bundle cleanup --file ~/ghq/github.com/yb173/dotfiles/Brewfile --force` で消す（Brewfile にないものは全部消えるので、先に `--force` なしで一覧を見る） |
 | Neovim のプラグイン（`nvim-pack-lock.json`） | Neovim を開き直してから `:lua vim.pack.update(nil, { target = 'lockfile' })`。変わる中身が出るので、よければ `:write` で確定する |
-| zsh の設定 | 新しいタブを開くか、`reload` |
+| zsh の設定 | 新しいタブを開く（`.zshrc` 側だけなら `reload` でもよい） |
 | Ghostty の設定 | Ghostty で Cmd+Shift+,（設定を読み直す） |
 | Karabiner-Elements の設定 | 要らない（ファイルが変わると、自分で読み直す） |
 
