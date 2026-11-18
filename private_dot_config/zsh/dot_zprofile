@@ -23,3 +23,6 @@ path=(
 # 対話でないシェルでも mise の言語を使えるように、shims を PATH に足す
 # 対話のシェルでは、.zshrc の mise activate が PATH を直接書き換える
 eval "$(mise activate zsh --shims)"
+
+# この Mac だけの環境変数・PATH・秘密情報（リポジトリに入れない）。補完などは .zshrc が読む local.zsh
+[[ -r "$ZDOTDIR/local.zprofile" ]] && source "$ZDOTDIR/local.zprofile"

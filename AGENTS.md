@@ -40,7 +40,7 @@ Claude Code は、対話のシェルの関数・エイリアス・オプショ�
 ## 入れないもの
 
 - 秘密情報（トークン、`~/.config/gh/hosts.yml`、`~/.codex/auth.json` など）。public のリポジトリなので、誰でも読める
-- この Mac だけの設定（GCP の SDK の場所など）。`~/.config/zsh/local.zsh` に書き、リポジトリに入れない
+- この Mac だけの設定（GCP の SDK の場所など）。環境変数・PATH は `~/.config/zsh/local.zprofile`、補完・エイリアスなどは `~/.config/zsh/local.zsh` に書き、リポジトリに入れない（`.chezmoiignore` に書いてある）。中身を読むときは、値を出さない（秘密情報が入っていることがある）
 - アプリが書く状態（Claude Code の `~/.claude/projects/`、Codex の `~/.codex/config.toml` など）
 
 ## 変更の出し方
