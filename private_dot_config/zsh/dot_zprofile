@@ -13,6 +13,7 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 typeset -U path
 export PNPM_HOME="$HOME/Library/pnpm"
 path=(
+  $HOME/.local/bin(N-/)        # Claude Code（ネイティブ版）・uv tool など。(N-/) で、ないときは入れない
   $PNPM_HOME/bin
   $PNPM_HOME
   /opt/homebrew/opt/libpq/bin  # psql・pg_dump（libpq は keg-only）

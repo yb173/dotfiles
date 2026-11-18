@@ -1,2 +1,4 @@
 *~
 .DS_Store
+# Claude Code の手元だけの設定。途中に / があるので、**/ を付けないとリポジトリの直下にしか当たらない
+**/.claude/settings.local.json
