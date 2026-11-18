@@ -22,7 +22,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6.1.0
+        uses: actions/checkout@v7.0.1
         with:
           # 履歴を全部取ってくる（gitleaks がコミットをさかのぼって調べるため）
           fetch-depth: 0
