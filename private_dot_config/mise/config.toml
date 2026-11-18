@@ -1,7 +1,8 @@
-# 言語は最新を使う。新しい版は mise upgrade で入れる（この設定は変わらない）
+# node は LTS の 26 の中で最新、python は最新を使う。新しい版は mise upgrade で入れる（この設定は変わらない）
+# node は 27 が出ても上がらない。上げるときは、ここの 26 を書き換える
 # プロジェクトに .node-version などがあれば、そちらの版を使う
 [tools]
-node = "latest"
+node = "26"
 python = "latest"
 
 [settings]
