@@ -37,7 +37,7 @@ Claude Code は、対話のシェルの関数・エイリアス・オプショ�
 
 ## 入れないもの
 
-- 秘密情報（トークン、`~/.config/gh/hosts.yml`、`~/.codex/auth.json` など）。Private のリポジトリでも入れない
+- 秘密情報（トークン、`~/.config/gh/hosts.yml`、`~/.codex/auth.json` など）。public のリポジトリなので、誰でも読める
 - この Mac だけの設定（GCP の SDK の場所など）。`~/.config/zsh/local.zsh` に書き、リポジトリに入れない
 - アプリが書く状態（Claude Code の `~/.claude/projects/`、Codex の `~/.codex/config.toml` など）
 
@@ -47,3 +47,5 @@ Claude Code は、対話のシェルの関数・エイリアス・オプショ�
 - PR では GitHub Actions が gitleaks で秘密情報を調べる。public のリポジトリなので、見つかったら PR をマージせず、秘密情報を無効にしてから直す
 - ワークフロー（`.github/workflows/`）を変えたら、`gh actions-lock` で `actions.lock` を更新する（PR で `verify-lockfile` が確かめる）。Action は版のタグで書く
 - issue・PR・コミットメッセージ・コメントは日本語で書く
+- issue・PR・コミットメッセージにも、手元の絶対パス・private のリポジトリ名・メールアドレスを書かない
+  - 理由: public なので誰でも読める。issue や PR の本文は、あとで直しても前の版が残り、誰でも見られる（前の版は、GitHub の画面からしか消せない）

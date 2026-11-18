@@ -33,7 +33,7 @@
    eval "$(/opt/homebrew/bin/brew shellenv)"
    ```
 
-2. GitHub にログインする。リポジトリが Private なので、clone より前に要る。聞かれたら `GitHub.com` → `SSH` を選び、SSH の鍵を作って登録する
+2. GitHub にログインする。次の clone は SSH でするので、clone より前に要る（リポジトリは public なので、HTTPS なら認証なしでも clone できる。ただ、push するにはやはり要る）。聞かれたら `GitHub.com` → `SSH` を選び、SSH の鍵を作って登録する
 
    ```sh
    brew install gh chezmoi
