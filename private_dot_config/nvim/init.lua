@@ -1,8 +1,8 @@
 -- Neovim の設定。~/.vimrc から、使っている設定だけを移した
 -- Neovim で最初からそうなっている設定（autoindent・incsearch・hidden・smarttab・laststatus=2 など）は書かない
 
--- ○ や □ のように幅が決まっていない文字を、2 文字分の幅で表示する
-vim.o.ambiwidth = 'double'
+-- ○ や □ のように幅が決まっていない文字（ambiwidth）は、既定の 1 文字分のまま。
+-- Ghostty はこれらを 1 文字分で出す（変える設定もない）ので、2 文字分（double）にするとカーソルや表示がずれる
 
 -- タブの代わりに空白を入れる。幅は 4
 vim.o.expandtab = true
@@ -31,10 +31,13 @@ map('', 'H', '^')
 map('', 'L', '$')
 map('', 'J', '}')
 map('', 'K', '{')
--- jj・っj（日本語入力のまま）・Ctrl-J で挿入モードを抜ける。Ctrl-J はコマンドラインでも
+-- jj・っj（日本語入力のまま）・Ctrl-J で挿入モードを抜ける
 map('i', 'jj', '<Esc>')
 map('i', 'っj', '<Esc>')
-map('!', '<C-j>', '<Esc>')
+map('i', '<C-j>', '<Esc>')
+-- Ctrl-J で、コマンドラインも抜ける（打ちかけのコマンドを取り消す）。
+-- マッピングから送った <Esc> は、コマンドラインでは取り消さずに実行してしまうので、<C-c> を送る
+map('c', '<C-j>', '<C-c>')
 -- Esc を 2 回押して、検索の強調を消す
 map('n', '<Esc><Esc>', '<Cmd>nohlsearch<CR>')
 
