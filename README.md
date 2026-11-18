@@ -88,6 +88,67 @@
 
 5. 新しいタブ（`apps` なら Ghostty で）を開き、エラーが出ずにプロンプトが出ることを確かめる。`chezmoi doctor` と `chezmoi status`（何も出なければ揃っている）でも確かめる
 
+## すでに zsh の設定がある Mac から移る
+
+すでに `~/.zshrc` などがある Mac に入れるときは、先に控えを取り、残したい設定を `local` のファイルに移してから置く。
+
+- chezmoi は、自分が置いたことのないファイルを、聞かずに上書きする。上書きされるのは `~/.zshenv`、`~/.config/zsh/`、`~/.config/git/` の `config` と `ignore`、`~/.config/nvim/`、`~/.config/starship.toml`（`apps` なら Ghostty・Karabiner-Elements・mise の設定も）
+- 置いたあとは、zsh は `~/.zshrc`・`~/.zprofile` を読まない。置かれた `~/.zshenv` が、zsh の設定の場所（`ZDOTDIR`）を `~/.config/zsh` に変えるため
+
+1. 「新しい Mac で揃える」の 1 と 2（Homebrew を入れる、GitHub にログインする）を済ませる
+
+2. 上書きされるかもしれないファイルの控えを取る。あるものだけを、パスごとホームの tar.gz に入れる
+
+   ```zsh
+   cd ~ && tar -czf ~/dotfiles-backup-$(date +%F).tar.gz $(for f in .zshenv .zprofile .zshrc .zlogin .zsh_history .gitconfig .config/git .config/nvim .config/starship.toml .config/mise .config/ghostty .config/karabiner; do [[ -e $f ]] && print -r -- $f; done)
+   ```
+
+3. このリポジトリを clone し、chezmoi の設定を作る。まだ置かない（`--apply` を付けない）。聞かれる 2 つ（「Mac ごとに選ぶもの」）は、この Mac の macOS の設定やアプリを変えたくなければ、どちらも Enter（入れない）
+
+   ```sh
+   chezmoi init --source ~/ghq/github.com/yb173/dotfiles git@github.com:yb173/dotfiles.git
+   ```
+
+4. 今の `~/.zshrc`・`~/.zprofile` にあって、残したいものを移す。インストーラーやアプリが書き足した行（Rancher Desktop・Docker Desktop・gcloud など）は、たいていここにある
+
+   | 中身 | 移す先 |
+   | --- | --- |
+   | 環境変数・PATH（Rancher Desktop の `~/.rd/bin`、gcloud の `path.zsh.inc` など） | `~/.config/zsh/local.zprofile` |
+   | 補完・エイリアス・関数（gcloud の `completion.zsh.inc` など） | `~/.config/zsh/local.zsh` |
+
+   - `fpath` に足して `compinit` で読ませている補完（Docker Desktop の `~/.docker/completions` など）は、`local.zsh` で `compdef` を使って足す。`local.zsh` は `compinit` のあとに読むので、`fpath` に足すだけでは効かない
+
+     ```zsh
+     fpath+=(~/.docker/completions)
+     autoload -Uz _docker && compdef _docker docker
+     ```
+
+   - プロンプトやプラグインの設定（oh-my-zsh・Powerlevel10k など）は移さない。このリポジトリの設定（starship など）を使う
+   - `~/.local/bin` は、もう PATH に入っている
+
+5. git の名前とメールを `~/.config/git/config.local` に書く（書き方は「何がどこに置かれるか」）。`~/.gitconfig` に書いてあれば、git はそれも読むので、そのままでもよい
+
+6. 履歴を新しい場所（`~/.local/state/zsh/history`）にコピーする。新しい履歴がまだないときだけコピーするので、何度実行してもよい
+
+   ```zsh
+   mkdir -p ~/.local/state/zsh
+   [[ -e ~/.local/state/zsh/history ]] || cp -p ~/.zsh_history ~/.local/state/zsh/history
+   ```
+
+7. 差分を見てから置く。`Brewfile` のもの（シェルから使う CLI）で足りないものは、ここで入る
+
+   ```sh
+   chezmoi diff
+   chezmoi apply
+   ```
+
+8. 新しいタブを開き、エラーが出ずにプロンプトが出ること、使っていたコマンドが見つかることを確かめる。`chezmoi status` が空になることも確かめる。戻すときは、控えを `tar -xzf ~/dotfiles-backup-<日付>.tar.gz -C ~` で戻す（`~/.zshenv` も戻るので、前の設定を読むようになる）
+
+あとで、インストーラーやアプリが zsh の設定に行を書き足したとき:
+
+- `~/.zshrc` に書き足すものは、もう読まれない。必要な行を `local.zprofile`・`local.zsh` に移す
+- `ZDOTDIR` を見て `~/.config/zsh/.zshrc` に書き足すものは、`chezmoi status` に出る。書き足された行を `local` のファイルに移し、`chezmoi apply` で `.zshrc` を戻す
+
 ## 普段の直し方
 
 変えたら PR にする（main には直接 push しない）。
