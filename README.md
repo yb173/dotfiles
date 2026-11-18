@@ -19,6 +19,7 @@
 | `run_onchange_before_brew-bundle-apps.sh.tmpl` | （置かない。chezmoi が実行する） | `Brewfile.apps` について同じことをする（`apps` のときだけ） |
 | `run_onchange_macos-defaults.sh.tmpl` | （置かない。chezmoi が実行する） | macOS の設定（`defaults write`。`macos` のときだけ） |
 | `run_onchange_after_mise-install.sh.tmpl` | （置かない。chezmoi が実行する） | mise の設定が変わったら、置いたあとで `mise install` する（`apps` のときだけ） |
+| `run_onchange_after_karabiner-keyboard-check.sh.tmpl` | （置かない。chezmoi が実行する） | US 配列でないキーボードがあれば、警告を出す（`apps` のときだけ。Karabiner-Elements の設定を初めて置いたときと、変わったとき） |
 | `Brewfile` | （置かない） | Homebrew で入れるもの（シェルと、シェルから使う CLI。どの Mac にも入れる） |
 | `Brewfile.apps` | （置かない） | Homebrew で入れるもの（GUI のアプリと好みのツール。`apps` のときだけ） |
 | `AGENTS.md`・`CLAUDE.md` | （置かない） | このリポジトリで作業する AI エージェント向けの説明 |
@@ -45,6 +46,7 @@
 
 - 答えは `~/.config/chezmoi/chezmoi.toml` の `[data]` に残り、次からは聞かれない。変えるときは `chezmoi init --prompt` で聞き直す
 - 「入れない」に変えても、置いてあった設定や入っているアプリは消えない。chezmoi が管理しなくなるだけ
+- Karabiner-Elements の設定は、US 配列のキーボードを前提にしている（仮想キーボードを `ansi` に決め打ち）。JIS や ISO の配列のキーボードがある Mac では、`chezmoi apply` が警告を出す（止めはしない）。そのまま使うと `_` や `¥` などの記号の位置がずれる。ずれて困るなら、その Mac では `apps` を入れないか、Karabiner-Elements の画面で配列を変える（`karabiner.json` が書き換わり、`chezmoi status` に差分として出続ける）
 
 ## 新しい Mac で揃える
 

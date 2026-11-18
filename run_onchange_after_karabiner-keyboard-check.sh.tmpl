@@ -1,0 +1,36 @@
+{{/* Karabiner-Elements の設定を置く Mac（chezmoi init で「アプリを入れる」と答えた Mac）だけ。そうでない Mac では空に描かれ、chezmoi は実行しない */ -}}
+{{ if .apps -}}
+#!/bin/sh
+# Karabiner-Elements の設定（karabiner.json）は、仮想キーボードを US 配列（ansi）に決め打ちしている。
+# この Mac に US 配列でないキーボード（JIS・ISO）があれば、警告を出す。設定は変えず、chezmoi apply も止めない。
+# 初めて置いたときと、karabiner.json が変わったときに実行する
+# karabiner.json: {{ include "private_dot_config/private_karabiner/private_karabiner.json" | sha256sum }}
+set -u
+
+# macOS が覚えているキーボードごとの種類。40 が US（ANSI）、41 が ISO、42 が JIS
+types=$(defaults read /Library/Preferences/com.apple.keyboardtype keyboardtype 2>/dev/null |
+  sed -n 's/.*= *\([0-9][0-9]*\);.*/\1/p' | sort -u | tr '\n' ' ')
+types=${types% }
+# 内蔵キーボードの言語（US 配列なら U.S.）
+langs=$(ioreg -l -r -c IOHIDDevice 2>/dev/null |
+  sed -n 's/.*"KeyboardLanguage" = "\(.*\)".*/\1/p' | sort -u | tr '\n' ',')
+
+not_us=
+for t in $types; do
+  [ "$t" = 40 ] || not_us=1
+done
+case ",$langs" in
+  *,U.S.,*) ;;
+  ,) ;;
+  *) not_us=1 ;;
+esac
+
+if [ -n "$not_us" ]; then
+  cat >&2 <<MSG
+警告: この Mac には US 配列でないキーボードがあるようです（キーボードの種類: ${types:-不明}、内蔵キーボードの言語: ${langs%,}）
+  Karabiner-Elements の設定は、仮想キーボードを US 配列（ansi）に決め打ちしているので、_ や ¥ などの記号の位置がずれることがあります。
+  README の「Mac ごとに選ぶもの」を見てください。
+MSG
+fi
+exit 0
+{{ end -}}
