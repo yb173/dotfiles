@@ -89,6 +89,31 @@
 | macOS の設定を変える | `run_onchange_macos-defaults.sh` を直して `chezmoi apply`（中身が変わると実行される）。設定の名前は、画面で変える前と後の `defaults read` を比べて調べる |
 | zsh の設定を読み直す | `reload`（`exec zsh`） |
 
+## ほかの Mac で取り込む
+
+main が更新されたら、ほかの Mac では次のようにする。その Mac のリポジトリは main にいること（ほかのブランチにいると、そのブランチを pull する）。
+
+```sh
+chezmoi update --apply=false   # リポジトリを pull するだけ（git pull --autostash --rebase）
+chezmoi diff                   # ~ に何が置かれるかを見る
+chezmoi apply
+```
+
+- `chezmoi update` だけでも、pull と `chezmoi apply` を続けてする。ただ、`chezmoi apply` はその Mac の設定をその場で書き換えるので、先に差分を見る
+- その Mac で `~` のファイルを直接直していると、`chezmoi apply` が上書きしてよいか聞く。残したいときは上書きせず、`chezmoi re-add` でリポジトリに戻して PR にする
+- zsh のプラグインの版が変わっていれば、`chezmoi apply` が取り直す。macOS の設定のスクリプトが変わっていれば、実行する（Dock と Finder が再起動する）
+
+`chezmoi apply` だけでは済まないもの:
+
+| 変わったもの | すること |
+| --- | --- |
+| `Brewfile` | `brew bundle --file ~/ghq/github.com/yb173/dotfiles/Brewfile`。Brewfile から消したものは、`brew bundle cleanup --file ~/ghq/github.com/yb173/dotfiles/Brewfile --force` で消す（Brewfile にないものは全部消えるので、先に `--force` なしで一覧を見る） |
+| mise の設定（ツールを足した、版を変えた） | `mise install` |
+| Neovim のプラグイン（`nvim-pack-lock.json`） | Neovim を開き直してから `:lua vim.pack.update(nil, { target = 'lockfile' })`。変わる中身が出るので、よければ `:write` で確定する |
+| zsh の設定 | 新しいタブを開くか、`reload` |
+| Ghostty の設定 | Ghostty で Cmd+Shift+,（設定を読み直す） |
+| Karabiner-Elements の設定 | 要らない（ファイルが変わると、自分で読み直す） |
+
 ## 版を上げる
 
 ものによって上げ方が違う。`~` のファイルに版が書いてあるものは、上げたあと `chezmoi re-add` でリポジトリに戻して PR にする。
