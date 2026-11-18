@@ -10,6 +10,11 @@ disabled = true
 [package]
 disabled = true
 
+# AWS のリージョン（☁️  (ap-northeast-1)）を出さない。既定の format から、リージョンの部分 (\($region\) ) を除いた。
+# プロフィールと、一時的な認証情報の残り時間は出す。全体を ( ) で囲み、どちらもなければ記号も出さない
+[aws]
+format = '(on [$symbol($profile )(\[$duration\] )]($style))'
+
 # 以下は、Nerd Font の文字を記号に使わないための設定（starship preset no-nerd-font の中身）。
 # Nerd Font の文字を持たないフォントのターミナル（VS Code の MyricaM など）では、四角になってしまうため
 [azure]
