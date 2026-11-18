@@ -179,6 +179,8 @@ gnew() {
 }
 
 # 今のブランチのまま、既定のブランチ（origin/HEAD）を origin に合わせる
+# 既定のブランチにいないときは、チェックアウトせずに早送りする。作業中の変更があっても動き、今のブランチは変わらない。
+# 既定のブランチにだけあるコミットがあって早送りできないときは、何も変えずに失敗する
 gsync() {
   local current=$(git branch --show-current)
   local default
@@ -187,7 +189,6 @@ gsync() {
   if [[ $current == $default ]]; then
     git rebase "origin/$default"
   else
-    git checkout "$default" && git rebase "origin/$default"
-    git checkout "$current"
+    git fetch . "origin/$default:$default"
   fi
 }
