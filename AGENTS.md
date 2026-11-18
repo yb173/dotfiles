@@ -12,6 +12,7 @@
 - リポジトリにだけ置き、`~` に置かないファイル（`README.md`・`Brewfile`・このファイルなど）は `.chezmoiignore` に書く
   - 理由: 書き忘れると `~` に置かれる。`~/CLAUDE.md` ができると、ホームの下のすべてのプロジェクトで Claude Code が読んでしまう
 - 外から取ってくるもの（zsh のプラグイン）は `.chezmoiexternal.toml` に、版を固定した URL で書く
+  - URL は `https://github.com/<owner>/<repo>/archive/refs/tags/<タグ>.tar.gz` の形にする。Renovate は、この形の URL を正規表現で見つけて版を上げる（`.github/renovate.json5` の `matchStrings`）。形を変えるときは、`matchStrings` も直す
 
 ## 置く前と後に確かめる
 
@@ -45,6 +46,8 @@ Claude Code は、対話のシェルの関数・エイリアス・オプショ�
 ## 変更の出し方
 
 - main に直接 push しない。issue に問題と方針を書き、PR の本文の先頭に `Closes #番号` を書く。issue は #1 のサブ issue にする
+  - main はルールセットで守っている（PR を通さない push・force push・削除を止める）。リポジトリの管理者は止めない設定なので、利用者の認証で動くエージェントは push できてしまう。できても push しない
+- 版を上げる PR は bot も作る: GitHub Actions は Dependabot、zsh のプラグインは Renovate。どちらも自動ではマージしない
 - PR では GitHub Actions が gitleaks で秘密情報を調べる。public のリポジトリなので、見つかったら PR をマージせず、秘密情報を無効にしてから直す
 - ワークフロー（`.github/workflows/`）を変えたら、`gh actions-lock` で `actions.lock` を更新する（PR で `verify-lockfile` が確かめる）。Action は版のタグで書く
 - issue・PR・コミットメッセージ・コメントは日本語で書く

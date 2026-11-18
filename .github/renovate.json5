@@ -1,0 +1,28 @@
+// Renovate の設定。項目は https://docs.renovatebot.com/configuration-options/
+// zsh のプラグイン（.chezmoiexternal.toml の tar.gz の URL）の版を上げる PR を作る。
+// GitHub Actions は Dependabot が上げる（.github/dependabot.yml）
+{
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+  extends: ['config:recommended'],
+
+  // 下の customManagers だけを使う。ほかのもの（GitHub Actions など）は見ない
+  enabledManagers: ['custom.regex'],
+  customManagers: [
+    {
+      // URL から owner/repo とタグを取り出し、GitHub のタグと比べる
+      // 例: url = "https://github.com/zsh-users/zsh-autosuggestions/archive/refs/tags/v0.7.1.tar.gz"
+      customType: 'regex',
+      managerFilePatterns: ['/^\\.chezmoiexternal\\.toml$/'],
+      matchStrings: [
+        'url = "https://github\\.com/(?<depName>[^/"]+/[^/"]+)/archive/refs/tags/(?<currentValue>[^/"]+)\\.tar\\.gz"',
+      ],
+      datasourceTemplate: 'github-tags',
+    },
+  ],
+
+  // 出てから 7 日たっていない版は上げない。上流のリリースが乗っ取られたときに、すぐ取り込まないため
+  minimumReleaseAge: '7 days',
+  // 自動ではマージしない。PR の差分（URL のタグ）を見てからマージする
+  automerge: false,
+  labels: ['dependencies'],
+}
