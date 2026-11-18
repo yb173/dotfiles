@@ -48,6 +48,8 @@
 
 ## 新しい Mac で揃える
 
+Apple Silicon の Mac を前提にしている（Homebrew の場所を `/opt/homebrew` と決めて書いている）。
+
 1. Homebrew を入れる（[公式の手順](https://brew.sh/)）。入れたら、今のターミナルでも使えるようにする
 
    ```sh
@@ -202,6 +204,7 @@ chezmoi apply
 | Ghostty・Karabiner-Elements | アプリの中の更新で上がる。cask が「アプリが自分で更新する」（`auto_updates`）なので、`brew upgrade` は飛ばす。Homebrew で上げるなら `brew upgrade --greedy-auto-updates` | 変わらない |
 | node・python（mise） | `mise upgrade` で新しい版を入れる（設定は node が `26`、python が `latest`。node は 26 の中で最新になり、27 には上がらない）。新しい版があるかは `mise outdated` で見る。mise は入っている中で最新の版を使うので、`mise upgrade` するまでは今の版のまま。古い版は 1 日後に消える。プロジェクトに `.node-version` などがあれば、そちらの版を使う | 変わらない。node を 26 より上げるときは、`config.toml` の `26` を書き換える |
 | zsh のプラグイン | 新しいタグが出て 7 日たつと、Renovate が `.chezmoiexternal.toml` の URL のタグを書き換える PR を作る。差分を見てマージし、`chezmoi apply` で取り直す。Renovate が見つけたプラグインと、待っている版は、issue の「Dependency Dashboard」に出る。手で上げるときは、URL のタグを書き換えて PR にする | PR で変わる |
+| GitHub Actions（ワークフローの Action） | マイナー版・パッチ版は、Dependabot が週に 1 回 PR を作る。Dependabot は `actions.lock` を更新しないので、その PR では `verify-lockfile` が失敗する。PR のブランチで `actions.lock` を更新して push してからマージする: `gh pr checkout <番号>` → `gh actions-lock` → `git commit -am 'ci: actions.lock を更新する'` → `git push`。メジャー版は PR にならない（使い方が変わることがあるため）。ときどき各 Action のリリース（`gh release list -R actions/checkout` など）を見て、リリースノートを読んでから手で上げる: ワークフローの版を書き換え、`gh actions-lock` を実行して PR にする | PR で変わる |
 | Neovim のプラグイン（iceberg） | Neovim で `:lua vim.pack.update()`。変わる中身が出るので、よければ `:write` で確定する。`~/.config/nvim/nvim-pack-lock.json` が書き換わる | `chezmoi re-add` で戻す |
 
 ## zsh で使える関数

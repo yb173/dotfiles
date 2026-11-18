@@ -1,6 +1,7 @@
 version: 2
 updates:
-  # GitHub Actions の版を自動で更新する。PR のあと、gh actions-lock で actions.lock も更新する
+  # GitHub Actions のマイナー版・パッチ版を上げる PR を、週に 1 回作る。
+  # Dependabot は actions.lock を更新しないので、PR のブランチで gh actions-lock を実行して push してからマージする（README の「版を上げる」）
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -12,6 +13,7 @@ updates:
       github-actions:
         patterns:
           - "*"
+    # メジャー版は PR にしない。使い方が変わることがあるので、リリースノートを読んでから手で上げる（README の「版を上げる」）
     ignore:
       - dependency-name: "*"
         update-types:
