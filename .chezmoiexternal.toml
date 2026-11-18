@@ -1,4 +1,5 @@
 # chezmoi が外から取ってくるもの。URL（版）を変えると、次の chezmoi apply で取り直す
+# 版は Renovate が PR で上げる（.github/renovate.json5）。URL は .../archive/refs/tags/<タグ>.tar.gz の形のままにする
 
 # zsh のプラグイン。.zshrc で source する（プラグインマネージャーは使わない）
 [".local/share/zsh/plugins/zsh-autosuggestions"]
