@@ -4,6 +4,9 @@
 # psql・pg_dump。keg-only なので、.zprofile で PATH に足す（入っていれば）
 brew "libpq"
 
+# 秘密情報がコミットに入っていないかを調べる（GitHub Actions と同じ gitleaks。push する前に手元で gitleaks git）
+brew "gitleaks"
+
 # 動画と画像
 brew "ffmpeg"
 brew "yt-dlp"
