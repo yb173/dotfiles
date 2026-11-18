@@ -128,13 +128,20 @@ Apple Silicon の Mac を前提にしている（Homebrew の場所を `/opt/hom
 
    `apps` と答えたなら、`Brewfile.apps` も同じようにする（`--file "$(chezmoi source-path)/Brewfile.apps"`）
 
-5. 今の `~/.zshrc`・`~/.zprofile` にあって、残したいものを移す。インストーラーやアプリが書き足した行（Rancher Desktop・Docker Desktop・gcloud など）は、たいていここにある
+5. 今の zsh の設定にあって、残したいものを移す。見るのは `~/.zshenv`・`~/.zprofile`・`~/.zshrc`・`~/.zlogin` と、そこから `source`（か `.`）で読んでいるファイル。インストーラーやアプリが書き足した行（Rancher Desktop・Docker Desktop・gcloud など）は、たいてい `~/.zshrc`・`~/.zprofile` にある。prezto では、`~/.zshrc` などは `~/.zprezto/runcoms/` のファイルへのリンク（`~/.zshrc` を開けば中身が見える）
+
+   ```zsh
+   cd ~
+   # source か . で読んでいるファイルを出す（関係のない行も少し出る）
+   grep -HnE '(^|[[:space:];&|{])(source|\.)[[:space:]]' .zshenv .zprofile .zshrc .zlogin 2>/dev/null
+   ```
 
    | 中身 | 移す先 |
    | --- | --- |
-   | 環境変数・PATH（Rancher Desktop の `~/.rd/bin`、gcloud の `path.zsh.inc` など） | `~/.config/zsh/local.zprofile` |
+   | 環境変数・PATH（`~/.zshenv` にあるものも。Rancher Desktop の `~/.rd/bin`、gcloud の `path.zsh.inc` など） | `~/.config/zsh/local.zprofile` |
    | 補完・エイリアス・関数（gcloud の `completion.zsh.inc` など） | `~/.config/zsh/local.zsh` |
 
+   - oh-my-zsh の `$ZSH_CUSTOM`（既定は `~/.oh-my-zsh/custom`）にある `.zsh` のファイルは、`source` を書かなくても読まれていた。自分で書いたものがあれば、それも移す
    - `fpath` に足して `compinit` で読ませている補完（Docker Desktop の `~/.docker/completions` など）は、`local.zsh` で `compdef` を使って足す。`local.zsh` は `compinit` のあとに読むので、`fpath` に足すだけでは効かない
 
      ```zsh
@@ -142,19 +149,33 @@ Apple Silicon の Mac を前提にしている（Homebrew の場所を `/opt/hom
      autoload -Uz _docker && compdef _docker docker
      ```
 
-   - プロンプトやプラグインの設定（oh-my-zsh・Powerlevel10k など）は移さない。このリポジトリの設定（starship など）を使う
-   - `~/.local/bin` は、もう PATH に入っている
+   - プロンプトやプラグインの設定（oh-my-zsh・prezto・Powerlevel10k など。`source` している `oh-my-zsh.sh`・`~/.zprezto/init.zsh` も）は移さない。このリポジトリの設定（starship など）を使う
+   - `~/.local/bin` は、もう PATH に入っている。`~/bin` は入らない。prezto は `~/bin`・`~/sbin` を入れていた（`zprofile` の `$HOME/{,s}bin(N)`）ので、使っていれば `local.zprofile` に書く
 
-6. git の名前とメールを `~/.config/git/config.local` に書く（書き方は「何がどこに置かれるか」）。`~/.gitconfig` があれば、名前とメールを `config.local` に移してから、`~/.gitconfig` を消す（控えは 2 で取ってある）
+     ```zsh
+     path=($HOME/bin(N-/) $path)
+     ```
+
+6. git の設定を `~/.config/git/config.local` に移す。`~/.gitconfig` がなければ、名前とメールを書くだけ（書き方は「何がどこに置かれるか」。`chezmoi apply` の前なので、先に `mkdir -p ~/.config/git` する）。`~/.gitconfig` があれば、中身を全部見て、残すものを `config.local` に移してから、`~/.gitconfig` を消す（控えは 2 で取ってある）
 
    ```zsh
+   mkdir -p ~/.config/git                   # chezmoi apply の前なので、まだないことがある
+   git config --file ~/.gitconfig --list    # 書いてあるものを全部見る
    git config --file ~/.config/git/config.local user.name "$(git config --file ~/.gitconfig user.name)"
    git config --file ~/.config/git/config.local user.email "$(git config --file ~/.gitconfig user.email)"
-   trash ~/.gitconfig
    ```
 
-   - git は `~/.config/git/config` のあとに `~/.gitconfig` を読み、同じ項目は `~/.gitconfig` のほうが勝つ。古い `ghq.root` や `core.excludesfile` が残っていると、このリポジトリの設定が効かない
-   - `~/.gitconfig` に、ほかにも残したい設定（エイリアスなど）があれば、それも `config.local` に移す
+   - 名前とメールのほかに残すものは、エディターで、節（`[alias]`・`[url "…"]` など）ごと `~/.gitconfig` から `config.local` に写す。見落としやすいもの:
+     - `url.<base>.insteadOf`: clone・push する先の URL を書き換える（`https://github.com/` を `git@github.com:` に、など）。消すと、つなぎ方が変わり、push できなくなることがある
+     - `credential.*`: push のときの認証をどこから取るか（`gh auth setup-git` が書く `gh auth git-credential` など）。消すと、HTTPS の push で認証を聞かれる
+     - `include.path`・`includeIf.*.path`: ほかのファイルを読ませている（会社のリポジトリだけ別のメールにする、など）。`--list` には、読ませているファイルの中身は出ない
+   - 移さないもの: このリポジトリの設定と同じ項目（`init.defaultBranch`・`ghq.root` など）と、`core.excludesfile`（あると、このリポジトリの `~/.config/git/ignore` が読まれなくなる）。`config.local` は最後に読まれ、同じ項目はそちらが勝つので、このリポジトリの設定が効かなくなる
+
+   移したら消す。git は `~/.config/git/config` のあとに `~/.gitconfig` を読み、同じ項目は `~/.gitconfig` のほうが勝つので、残っていると、このリポジトリの設定が効かない
+
+   ```zsh
+   trash ~/.gitconfig
+   ```
 
 7. （`apps`）Ghostty の設定が `~/Library/Application Support/com.mitchellh.ghostty/` にあれば（`config.ghostty` か、古い Ghostty では `config`）、残したい項目がない限り消す（控えは 2 で取ってある）。Ghostty はそこと `~/.config/ghostty/` の両方を読み、同じ項目は `~/Library/Application Support` のほうが勝つので、このリポジトリのフォントやホットキーの設定が効かなくなる
 
@@ -243,7 +264,7 @@ chezmoi apply
 
 ## zsh で使える関数
 
-git の補助は `g` で始まり、選ぶところは fzf を使う。
+git の補助は `g` で始まり、選ぶところは fzf を使う。`-s` でファイルを選ぶもの（`ga`・`gd`・`grst`・`gdiscard`）は、今いるディレクトリに関係なく、リポジトリ全体から選ぶ。
 
 | 関数 | すること |
 | --- | --- |
@@ -251,7 +272,7 @@ git の補助は `g` で始まり、選ぶところは fzf を使う。
 | `gnew <ブランチ名>` | 既定のブランチを origin に合わせてから、新しいブランチを作って移る |
 | `gsync` | 今のブランチのまま、既定のブランチを origin に合わせる。ほかのブランチにいるときは、チェックアウトせずに早送りする（作業中の変更があっても動く。既定のブランチにだけあるコミットがあると、何も変えずに失敗する） |
 | `ga` / `ga -s` | `git add`。`-s` でファイルを選ぶ |
-| `gd` / `gd -s` | `git diff`。`-s` でファイルを選ぶ（パスはクリップボードにも入る） |
+| `gd` / `gd -s` | `git diff`。`-s` でファイルを選ぶ（今いるディレクトリから数えたパスを、クリップボードにも入れる） |
 | `grst` / `grst -s` | `git restore --staged`。`-s` でファイルを選ぶ |
 | `gdiscard <ファイル>` / `gdiscard -s` | 作業中の変更を捨てる（聞いてから） |
 | `gco -l` / `-r` / `-h` | ローカル・リモートのブランチ、コミットを選んでチェックアウトする。ほかの引数は `git checkout` に渡す |

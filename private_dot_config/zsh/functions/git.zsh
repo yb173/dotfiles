@@ -18,8 +18,9 @@ ghash() {
 # 差分を見る。-s で変更したファイルを選ぶ（パスはクリップボードにも入れる）
 gd() {
   if [[ $1 == -s ]]; then
-    # git ls-files のパスは、今いるディレクトリから数える。最後の NUL を取る
-    local file=${"$(git ls-files -m -z | fzf --read0 --print0 --preview 'git diff --color=always -- {}')"%$'\0'}
+    # :/ を付けて、今いるディレクトリの外も含め、リポジトリ全体から選ぶ（ga -s・grst -s と同じ）。
+    # git ls-files のパスは、今いるディレクトリから数える（外のファイルは ../ で始まる）。最後の NUL を取る
+    local file=${"$(git ls-files -m -z -- :/ | fzf --read0 --print0 --preview 'git diff --color=always -- {}')"%$'\0'}
     [[ -n $file ]] || return 1
     print -rn -- "$file" | pbcopy
     git diff -- "$file"
@@ -61,7 +62,8 @@ grst() {
 gdiscard() {
   local files
   if [[ $1 == -s ]]; then
-    files=(${(0)"$(git ls-files -m -z | fzf -m --read0 --print0 --preview 'git diff --color=always -- {}')"})
+    # gd -s と同じく、リポジトリ全体から選ぶ。パスは今いるディレクトリから数える
+    files=(${(0)"$(git ls-files -m -z -- :/ | fzf -m --read0 --print0 --preview 'git diff --color=always -- {}')"})
   else
     files=("$@")
   fi
