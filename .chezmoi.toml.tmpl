@@ -2,3 +2,9 @@
 
 # このリポジトリの場所。ほかのリポジトリと同じ ghq の場所に置く
 sourceDir = {{ .chezmoi.sourceDir | quote }}
+
+# Mac ごとに選ぶもの。chezmoi init のときに 1 回だけ聞く（既定は「入れない」）。
+# 答えを変えるときは chezmoi init --prompt で聞き直す
+[data]
+macos = {{ promptBoolOnce . "macos" "macOS の設定（外観・Finder・Dock・キーリピート・トラックパッド）を変えますか" false }}
+apps = {{ promptBoolOnce . "apps" "GUI のアプリ（Ghostty・Karabiner-Elements・フォント）、動画・画像・psql のツール、mise の設定（node・python）を入れますか" false }}

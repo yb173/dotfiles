@@ -16,7 +16,7 @@ path=(
   $HOME/.local/bin(N-/)        # Claude Code（ネイティブ版）・uv tool など。(N-/) で、ないときは入れない
   $PNPM_HOME/bin
   $PNPM_HOME
-  /opt/homebrew/opt/libpq/bin  # psql・pg_dump（libpq は keg-only）
+  /opt/homebrew/opt/libpq/bin(N-/)  # psql・pg_dump（libpq は keg-only。Brewfile.apps で入れたときだけ）
   $HOME/.cargo/bin             # Rust（rustup）
   $path
 )

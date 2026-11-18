@@ -9,7 +9,11 @@
 - ファイル名は chezmoi の決まりに従う: `dot_`（先頭の `.`）、`private_`（自分だけが読める権限）、`run_onchange_`（中身が変わったときに `chezmoi apply` が実行するスクリプト）
   - `~/.config` は `700` なので、その下に置くものは `private_dot_config/` に入れる
   - スクリプトを、ほかのファイルが変わったときに実行させるには、`.tmpl` にして `{{ include "<ファイル>" | sha256sum }}` をコメントに書く（`run_onchange_before_brew-bundle.sh.tmpl` など）。`before_` は `~` を書き換える前、`after_` は後に実行する
-- リポジトリにだけ置き、`~` に置かないファイル（`README.md`・`Brewfile`・このファイルなど）は `.chezmoiignore` に書く
+- Mac ごとに選ぶもの（`chezmoi init` で聞く `.macos`・`.apps`。README の「Mac ごとに選ぶもの」）で、置くもの・実行するものを分ける
+  - スクリプトは `.tmpl` にして `{{ if .apps -}}` … `{{ end -}}` で囲む（空に描かれると実行されない）。置くファイルは、テンプレートとして読まれる `.chezmoiignore` で、`{{ if not .apps -}}` のときに外す
+  - テンプレートでは `.macos`・`.apps` を直接使う。`get . "apps"` で黙って false にしない（`chezmoi init` をし直していない Mac で、知らないうちに管理から外れる）
+  - 聞くことを足すときは、`.chezmoi.toml.tmpl` の `[data]` に `promptBoolOnce` で足す。既定は「入れない」にする
+- リポジトリにだけ置き、`~` に置かないファイル（`README.md`・`Brewfile`・`Brewfile.apps`・このファイルなど）は `.chezmoiignore` に書く
   - 理由: 書き忘れると `~` に置かれる。`~/CLAUDE.md` ができると、ホームの下のすべてのプロジェクトで Claude Code が読んでしまう
 - 外から取ってくるもの（zsh のプラグイン）は `.chezmoiexternal.toml` に、版を固定した URL で書く
   - URL は `https://github.com/<owner>/<repo>/archive/refs/tags/<タグ>.tar.gz` の形にする。Renovate は、この形の URL を正規表現で見つけて版を上げる（`.github/renovate.json5` の `matchStrings`）。形を変えるときは、`matchStrings` も直す
@@ -23,7 +27,12 @@
   - Ghostty: `/Applications/Ghostty.app/Contents/MacOS/ghostty +validate-config`。フォントがどれで描かれるかは `+show-face --string=…`
   - Karabiner: ルールを `{"title": …, "rules": […]}` の形に取り出して `karabiner_cli --lint-complex-modifications`
   - Neovim: `nvim --headless +qa` で、起動のときにエラーが出ないこと
-  - Brewfile: `brew bundle check --file Brewfile`
+  - Brewfile: `brew bundle check --file Brewfile`（`Brewfile.apps` も）。`brew bundle cleanup` は 2 つをまとめて渡す（`cat Brewfile Brewfile.apps | brew bundle cleanup --file=-`）。`Brewfile` だけだと、`Brewfile.apps` のものを消す一覧に入れる
+  - Mac ごとに選ぶもので変わるもの: `[data]` を変えた一時的な設定と、一時的な状態・ホームで試す。この Mac の `~` も状態も変わらない
+    ```sh
+    chezmoi --config <一時>/chezmoi.toml --persistent-state <一時>/state.boltdb --destination <一時>/home status --exclude=externals
+    ```
+    `managed`（置くもの）、`execute-template`（スクリプトを描く）、`apply --exclude=externals,scripts`（スクリプトを実行せずに置く）も同じ形で使える
 - 置いたあとは、`chezmoi status` が空になることを確かめる
 
 ## zsh の書き方（Claude Code のシェルで壊さない）

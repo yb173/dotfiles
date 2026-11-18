@@ -1,3 +1,5 @@
+{{/* mise の設定は、chezmoi init で「アプリを入れる」と答えた Mac にだけ置く。そうでない Mac では空に描かれ、chezmoi は実行しない */ -}}
+{{ if .apps -}}
 #!/bin/sh
 # mise の設定が変わったときに、chezmoi apply が設定を置いたあとで実行する。
 # chezmoi は、描いたスクリプトの中身が前に実行したときと違うと実行するので、設定のハッシュを書いておく
@@ -8,3 +10,4 @@
 set -eu
 cd "$HOME"
 mise install
+{{ end -}}
