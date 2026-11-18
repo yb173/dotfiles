@@ -52,6 +52,8 @@
    chezmoi init --apply --source ~/ghq/github.com/yb173/dotfiles git@github.com:yb173/dotfiles.git
    ```
 
+   `--source` に渡した場所が、chezmoi の設定（`sourceDir`）に入る。fork したときは、URL と `--source` を自分のリポジトリのものにする
+
    `chezmoi apply` は、次の順に進む。途中で失敗したら、直してから `chezmoi apply` をもう一度実行する（済んだスクリプトは、もう実行しない）
    1. Brewfile のものを `brew bundle` で入れる。Karabiner-Elements はインストーラーなので、管理者のパスワードを聞かれる。先に入れるので、置いた `.zshrc` が、まだ入っていない mise や starship を呼ぶことはない
    2. `~` に置き、zsh のプラグインを取ってきて、macOS の設定のスクリプトを実行する（Dock と Finder が再起動する）
