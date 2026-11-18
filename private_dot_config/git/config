@@ -1,7 +1,11 @@
 [user]
-	name = yb173
-	email = 56855963+yb173@users.noreply.github.com
+	# 名前とメールは config.local に書く。書いていないときは、Mac の名前から作ったメールでコミットせずに止める
+	useConfigOnly = true
 [init]
 	defaultBranch = main
 [ghq]
 	root = ~/ghq
+# この Mac だけの設定（[user] の名前とメールなど）。リポジトリに入れない。ないときは何も読まない
+# 最後に読むので、ここに書いたものが優先される
+[include]
+	path = ~/.config/git/config.local
