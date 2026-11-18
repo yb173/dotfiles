@@ -42,7 +42,7 @@
 | 名前 | 聞くこと | 「入れる」と答えた Mac だけですること |
 | --- | --- | --- |
 | `macos` | macOS の設定を変えるか | macOS の設定のスクリプトを実行する（外観・Finder・Dock・キーリピート・トラックパッド。Dock と Finder が再起動する） |
-| `apps` | GUI のアプリ、好みのツール、mise の設定を入れるか | `Brewfile.apps` のもの（Ghostty・Karabiner-Elements・フォント・ffmpeg・yt-dlp・webp・libpq）を入れ、Ghostty・Karabiner-Elements・mise の設定を置き、`mise install` する |
+| `apps` | GUI のアプリ、好みのツール、mise の設定を入れるか | `Brewfile.apps` のもの（Ghostty・Karabiner-Elements・フォント・ffmpeg・yt-dlp・webp・libpq・gitleaks）を入れ、Ghostty・Karabiner-Elements・mise の設定を置き、`mise install` する |
 
 - 答えは `~/.config/chezmoi/chezmoi.toml` の `[data]` に残り、次からは聞かれない。変えるときは `chezmoi init --prompt` で聞き直す
 - 「入れない」に変えても、置いてあった設定や入っているアプリは消えない。chezmoi が管理しなくなるだけ
