@@ -33,7 +33,7 @@
   - `~/.config/git/config.local`: git の名前とメール（`[user]`）など。`~/.config/git/config` が、あれば最後に読む（`[include]`）。名前とメールがないと、コミットのときに「Please tell me who you are」で止まる（`user.useConfigOnly`。Mac の名前から作ったメールでコミットしないように）
     - 書くときは `git config --file ~/.config/git/config.local …` を使う。git が勧める `git config --global` は、`~/.gitconfig` がないと chezmoi が置いた `~/.config/git/config` に書く
   - `.zshenv` 用は作らない。`.zshenv` はスクリプトの zsh も含めてすべての zsh が読み、macOS では後から `/etc/zprofile` の `path_helper` が PATH を並べ直すため
-- `run_onchange_` のスクリプトは、中身が前に実行したときと変わると、`chezmoi apply` が実行する。Brewfile と mise のスクリプトには、そのファイルのハッシュが書かれる（`.tmpl` なので、chezmoi が描くときに入れる）ので、そのファイルが変わると実行される。空に描かれたスクリプトは実行しない
+- `run_onchange_` のスクリプトは、中身が前に実行したときと変わると、`chezmoi apply` が実行する。Brewfile・mise・Karabiner-Elements のスクリプトには、それぞれ `Brewfile`・`Brewfile.apps`・mise の設定・`karabiner.json` のハッシュが書かれる（`.tmpl` なので、chezmoi が描くときに入れる）ので、そのファイルが変わると実行される。空に描かれたスクリプトは実行しない
 
 ### Mac ごとに選ぶもの
 
@@ -216,6 +216,7 @@ chezmoi apply
   - zsh のプラグインの版が変わっていれば、取り直す
   - （`macos`）macOS の設定のスクリプトが変わっていれば、実行する（Dock と Finder が再起動する）
   - （`apps`）mise の設定が変わっていれば、置いたあとで `mise install` する
+  - （`apps`）Karabiner-Elements の設定が変わっていれば、置いたあとでキーボードが US 配列かを確かめ、違えば警告を出す（上の「Mac ごとに選ぶもの」）
 
 `chezmoi apply` だけでは済まないもの:
 
