@@ -5,6 +5,11 @@
 [gcloud]
 disabled = true
 
+# package.json・Cargo.toml などがあるディレクトリで、そのパッケージの版（📦 v1.0.0）を出さない。
+# node などの言語の版（via ⬢ v26.13.1）は出す
+[package]
+disabled = true
+
 # 以下は、Nerd Font の文字を記号に使わないための設定（starship preset no-nerd-font の中身）。
 # Nerd Font の文字を持たないフォントのターミナル（VS Code の MyricaM など）では、四角になってしまうため
 [azure]
