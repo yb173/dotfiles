@@ -96,13 +96,19 @@ Apple Silicon の Mac を前提にしている（Homebrew の場所を `/opt/hom
 
 - chezmoi は、自分が置いたことのないファイルを、聞かずに上書きする。上書きされるのは `~/.zshenv`、`~/.config/zsh/`、`~/.config/git/` の `config` と `ignore`、`~/.config/nvim/`、`~/.config/starship.toml`（`apps` なら Ghostty・Karabiner-Elements・mise の設定も）
 - 置いたあとは、zsh は `~/.zshrc`・`~/.zprofile` を読まない。置かれた `~/.zshenv` が、zsh の設定の場所（`ZDOTDIR`）を `~/.config/zsh` に変えるため
+- 反対に、置いたあとも `~/.gitconfig` と Ghostty の `~/Library/Application Support/com.mitchellh.ghostty/` の設定は読まれ、同じ項目はこのリポジトリの設定より優先される（6・7 で片付ける）
 
 1. 「新しい Mac で揃える」の 1 と 2（Homebrew を入れる、GitHub にログインする）を済ませる
 
 2. 上書きされるかもしれないファイルの控えを取る。あるものだけを、パスごとホームの tar.gz に入れる
 
    ```zsh
-   cd ~ && tar -czf ~/dotfiles-backup-$(date +%F).tar.gz $(for f in .zshenv .zprofile .zshrc .zlogin .zsh_history .gitconfig .config/git .config/nvim .config/starship.toml .config/mise .config/ghostty .config/karabiner; do [[ -e $f ]] && print -r -- $f; done)
+   cd ~
+   files=()
+   for f in .zshenv .zprofile .zshrc .zlogin .zsh_history .gitconfig .config/git .config/nvim .config/starship.toml .config/mise .config/ghostty .config/karabiner 'Library/Application Support/com.mitchellh.ghostty'; do
+     [[ -e $f ]] && files+=("$f")
+   done
+   tar -czf ~/dotfiles-backup-$(date +%F).tar.gz $files
    ```
 
 3. このリポジトリを clone し、chezmoi の設定を作る。まだ置かない（`--apply` を付けない）。聞かれる 2 つ（「Mac ごとに選ぶもの」）は、この Mac の macOS の設定やアプリを変えたくなければ、どちらも Enter（入れない）
@@ -111,7 +117,16 @@ Apple Silicon の Mac を前提にしている（Homebrew の場所を `/opt/hom
    chezmoi init --source ~/ghq/github.com/yb173/dotfiles git@github.com:yb173/dotfiles.git
    ```
 
-4. 今の `~/.zshrc`・`~/.zprofile` にあって、残したいものを移す。インストーラーやアプリが書き足した行（Rancher Desktop・Docker Desktop・gcloud など）は、たいていここにある
+4. `Brewfile` のものを、版も上げて入れる。`chezmoi apply` は足りないものを入れるだけで、入っているものの版は上げない。古い版のままだと、Neovim（0.12 より前は `vim.pack` がない）や fzf（古いと `fzf --zsh` がない）が、置いた設定を読むときに失敗する。上がるのは `Brewfile` にあるものだけ
+
+   ```sh
+   brew update
+   brew bundle --file "$(chezmoi source-path)/Brewfile"
+   ```
+
+   `apps` と答えたなら、`Brewfile.apps` も同じようにする（`--file "$(chezmoi source-path)/Brewfile.apps"`）
+
+5. 今の `~/.zshrc`・`~/.zprofile` にあって、残したいものを移す。インストーラーやアプリが書き足した行（Rancher Desktop・Docker Desktop・gcloud など）は、たいていここにある
 
    | 中身 | 移す先 |
    | --- | --- |
@@ -128,23 +143,39 @@ Apple Silicon の Mac を前提にしている（Homebrew の場所を `/opt/hom
    - プロンプトやプラグインの設定（oh-my-zsh・Powerlevel10k など）は移さない。このリポジトリの設定（starship など）を使う
    - `~/.local/bin` は、もう PATH に入っている
 
-5. git の名前とメールを `~/.config/git/config.local` に書く（書き方は「何がどこに置かれるか」）。`~/.gitconfig` に書いてあれば、git はそれも読むので、そのままでもよい
+6. git の名前とメールを `~/.config/git/config.local` に書く（書き方は「何がどこに置かれるか」）。`~/.gitconfig` があれば、名前とメールを `config.local` に移してから、`~/.gitconfig` を消す（控えは 2 で取ってある）
 
-6. 履歴を新しい場所（`~/.local/state/zsh/history`）にコピーする。新しい履歴がまだないときだけコピーするので、何度実行してもよい
+   ```zsh
+   git config --file ~/.config/git/config.local user.name "$(git config --file ~/.gitconfig user.name)"
+   git config --file ~/.config/git/config.local user.email "$(git config --file ~/.gitconfig user.email)"
+   trash ~/.gitconfig
+   ```
+
+   - git は `~/.config/git/config` のあとに `~/.gitconfig` を読み、同じ項目は `~/.gitconfig` のほうが勝つ。古い `ghq.root` や `core.excludesfile` が残っていると、このリポジトリの設定が効かない
+   - `~/.gitconfig` に、ほかにも残したい設定（エイリアスなど）があれば、それも `config.local` に移す
+
+7. （`apps`）Ghostty の設定が `~/Library/Application Support/com.mitchellh.ghostty/` にあれば（`config.ghostty` か、古い Ghostty では `config`）、残したい項目がない限り消す（控えは 2 で取ってある）。Ghostty はそこと `~/.config/ghostty/` の両方を読み、同じ項目は `~/Library/Application Support` のほうが勝つので、このリポジトリのフォントやホットキーの設定が効かなくなる
+
+   ```zsh
+   ls ~/Library/Application\ Support/com.mitchellh.ghostty/
+   trash ~/Library/Application\ Support/com.mitchellh.ghostty/config.ghostty   # あるものを消す
+   ```
+
+8. 履歴を新しい場所（`~/.local/state/zsh/history`）にコピーする。新しい履歴がまだないときだけコピーするので、何度実行してもよい
 
    ```zsh
    mkdir -p ~/.local/state/zsh
    [[ -e ~/.local/state/zsh/history ]] || cp -p ~/.zsh_history ~/.local/state/zsh/history
    ```
 
-7. 差分を見てから置く。`Brewfile` のもの（シェルから使う CLI）で足りないものは、ここで入る
+9. 差分を見てから置く
 
    ```sh
    chezmoi diff
    chezmoi apply
    ```
 
-8. 新しいタブを開き、エラーが出ずにプロンプトが出ること、使っていたコマンドが見つかることを確かめる。`chezmoi status` が空になることも確かめる。戻すときは、控えを `tar -xzf ~/dotfiles-backup-<日付>.tar.gz -C ~` で戻す（`~/.zshenv` も戻るので、前の設定を読むようになる）
+10. 新しいタブを開き、エラーが出ずにプロンプトが出ること、使っていたコマンドが見つかることを確かめる。`chezmoi status` が空になることも確かめる。戻すときは、控えを `tar -xzf ~/dotfiles-backup-<日付>.tar.gz -C ~` で戻す（`~/.zshenv` も戻るので、前の設定を読むようになる）
 
 あとで、インストーラーやアプリが zsh の設定に行を書き足したとき:
 
