@@ -1,0 +1,12 @@
+{{/* chezmoi init で「アプリを入れる」と答えた Mac だけ。そうでない Mac では空に描かれ、chezmoi は実行しない */ -}}
+{{ if .apps -}}
+#!/bin/sh
+# Brewfile.apps が変わったときに、chezmoi apply が ~ を書き換える前に実行する。
+# chezmoi は、描いたスクリプトの中身が前に実行したときと違うと実行するので、Brewfile.apps のハッシュを書いておく
+# Brewfile.apps: {{ include "Brewfile.apps" | sha256sum }}
+#
+# 足りないものを入れるだけ。入っているものの版は上げず、Brewfile.apps から消したものも消さない。
+# Karabiner-Elements はインストーラーなので、入れるときに管理者のパスワードを聞かれる
+set -eu
+brew bundle install --no-upgrade --file {{ joinPath .chezmoi.sourceDir "Brewfile.apps" | quote }}
+{{ end -}}

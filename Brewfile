@@ -1,5 +1,6 @@
-# Homebrew で入れるもの。brew bundle で入れる
-# 入れたものは、ここに足す。ここにないものは brew bundle cleanup で一覧に出る
+# Homebrew で入れるもの（シェルと、シェルから使う CLI）。どの Mac にも入れる
+# chezmoi apply が、このファイルが変わったときに brew bundle で入れる（run_onchange_before_brew-bundle.sh.tmpl）
+# GUI のアプリと好みのツールは Brewfile.apps
 
 # シェルと git
 brew "bash" # bash 5。#!/usr/bin/env bash のスクリプトが macOS の bash 3.2 で動かないように
@@ -20,17 +21,3 @@ brew "uv"
 brew "ripgrep"
 brew "jq"
 brew "tree"
-
-# psql・pg_dump。keg-only なので、.zprofile で PATH に足す
-brew "libpq"
-
-# 動画と画像
-brew "ffmpeg"
-brew "yt-dlp"
-brew "webp" # cwebp
-
-# アプリとフォント
-cask "ghostty"
-cask "karabiner-elements"
-cask "font-myricam" # VS Code で使っている
-cask "font-hackgen" # Ghostty で使っている（HackGen35）

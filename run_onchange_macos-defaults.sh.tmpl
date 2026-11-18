@@ -1,3 +1,5 @@
+{{/* chezmoi init で「macOS の設定を変える」と答えた Mac だけ。そうでない Mac では空に描かれ、chezmoi は実行しない */ -}}
+{{ if .macos -}}
 #!/bin/sh
 # macOS の設定のうち、初期値から変えているもの。
 # 中身を変えると、次の chezmoi apply で実行される。
@@ -27,3 +29,4 @@ defaults -currentHost write -g com.apple.mouse.tapBehavior -int 1
 
 # Dock と Finder を再起動して反映する（動いていなくても止めない）
 killall Dock Finder || true
+{{ end -}}

@@ -1,5 +1,6 @@
 # ~ に置かないファイル（リポジトリにだけあるもの）
 Brewfile
+Brewfile.apps
 README.md
 # AI エージェント向けの説明。~/CLAUDE.md があると、ホームの下のすべてのプロジェクトで読まれてしまう
 AGENTS.md
@@ -9,3 +10,14 @@ CLAUDE.md
 .config/zsh/local.zprofile
 .config/zsh/local.zsh
 .config/git/config.local
+
+{{ if not .apps -}}
+# chezmoi init で「アプリを入れる」と答えていない Mac には、GUI のアプリと mise の設定を置かない
+# （このファイルはテンプレートとして読まれる。置かないだけで、その Mac にあるものは消さない）
+.config/ghostty
+.config/ghostty/**
+.config/karabiner
+.config/karabiner/**
+.config/mise
+.config/mise/**
+{{ end -}}

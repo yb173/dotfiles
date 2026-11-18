@@ -1,0 +1,16 @@
+# Homebrew で入れるもの（GUI のアプリと好みのツール）。chezmoi init で「入れる」と答えた Mac にだけ入れる
+# chezmoi apply が、このファイルが変わったときに brew bundle で入れる（run_onchange_before_brew-bundle-apps.sh.tmpl）
+
+# psql・pg_dump。keg-only なので、.zprofile で PATH に足す（入っていれば）
+brew "libpq"
+
+# 動画と画像
+brew "ffmpeg"
+brew "yt-dlp"
+brew "webp" # cwebp
+
+# アプリとフォント
+cask "ghostty"
+cask "karabiner-elements"
+cask "font-myricam" # VS Code で使っている
+cask "font-hackgen" # Ghostty で使っている（HackGen35）
