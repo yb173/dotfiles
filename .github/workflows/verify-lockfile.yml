@@ -1,4 +1,4 @@
-# .github/workflows/actions.lock がワークフローと食い違っているか、
+# .github/workflows/actions.lock がワークフローと食い違っているとき、または
 # 固定したコミットが upstream で検証できなくなったときに失敗する
 # https://github.com/github/gh-actions-lock/blob/main/.github/workflows/verify-lockfile.yml
 

@@ -3,7 +3,7 @@
 # GUI のアプリと好みのツールは Brewfile.apps
 
 # シェルと git
-brew "bash" # bash 5。#!/usr/bin/env bash のスクリプトが macOS の bash 3.2 で動かないように
+brew "bash" # bash 5。#!/usr/bin/env bash のスクリプトを、macOS の bash 3.2 ではなく bash 5 で動かすため
 brew "git"
 brew "gh"
 brew "ghq"
