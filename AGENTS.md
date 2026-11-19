@@ -11,23 +11,23 @@
   - スクリプトを、ほかのファイルが変わったときに実行させるには、`.tmpl` にして `{{ include "<ファイル>" | sha256sum }}` をコメントに書く（`run_onchange_before_brew-bundle.sh.tmpl` など）。`before_` は `~` を書き換える前、`after_` は後に実行する
 - Mac ごとに選ぶもの（`chezmoi init` で聞く `.macos`・`.apps`。README の「Mac ごとに選ぶもの」）で、置くもの・実行するものを分ける
   - スクリプトは `.tmpl` にして `{{ if .apps -}}` … `{{ end -}}` で囲む（空に描かれると実行されない）。置くファイルは、テンプレートとして読まれる `.chezmoiignore` で、`{{ if not .apps -}}` のときに外す
-  - テンプレートでは `.macos`・`.apps` を直接使う。`get . "apps"` で黙って false にしない（`chezmoi init` をし直していない Mac で、知らないうちに管理から外れる）
+  - テンプレートでは `.macos`・`.apps` を直接使う。`get . "apps"` のように、答えがないときに止まらず false になる書き方をしない（`chezmoi init` をし直していない Mac で、知らないうちに管理から外れる）
   - 聞くことを足すときは、`.chezmoi.toml.tmpl` の `[data]` に `promptBoolOnce` で足す。既定は「入れない」にする
 - リポジトリにだけ置き、`~` に置かないファイル（`README.md`・`Brewfile`・`Brewfile.apps`・このファイルなど）は `.chezmoiignore` に書く
   - 理由: 書き忘れると `~` に置かれる。`~/CLAUDE.md` ができると、ホームの下のすべてのプロジェクトで Claude Code が読んでしまう
 - 外から取ってくるもの（zsh のプラグイン・yomiyasu）は `.chezmoiexternal.toml` に、版を固定した URL で書く
-  - URL は `https://github.com/<owner>/<repo>/archive/refs/tags/<タグ>.tar.gz` の形にする。Renovate は、この形の URL を正規表現で見つけて版を上げる（`.github/renovate.json5` の `matchStrings`）。形を変えるときは、`matchStrings` も直す
+  - URL は `https://github.com/<owner>/<repo>/archive/refs/tags/<タグ>.tar.gz` の形にする。Renovate はこの形の URL を正規表現で見つけて版を上げる（`.github/renovate.json5` の `matchStrings`）。形を変えるときは、`matchStrings` も直す
 
 ## 置く前と後に確かめる
 
-- `chezmoi apply` は、この Mac の設定をその場で書き換え、`run_onchange_` のスクリプトも実行する（Brewfile が変わっていれば `brew bundle` で入れ、macOS の設定のスクリプトは Dock と Finder を再起動する）。置く前に `chezmoi diff` で差分を見る。`~/.zshenv` や macOS の設定のように影響が大きいものは、利用者に伝えてから置く
+- `chezmoi apply` はこの Mac の設定をその場で書き換え、`run_onchange_` のスクリプトも実行する（Brewfile が変わっていれば `brew bundle` で入れ、macOS の設定のスクリプトは Dock と Finder を再起動する）。置く前に `chezmoi diff` で差分を見る。`~/.zshenv` や macOS の設定のように影響が大きいものは、利用者に伝えてから置く
 - ファイルの種類ごとの確かめ方
   - zsh: `zsh -n <ファイル>` で構文を見る。`~/.zshenv` を替える前に `ZDOTDIR=~/.config/zsh zsh -il` で試す（今のシェルは変わらない）
   - シェルスクリプト: `sh -n`
   - Ghostty: `/Applications/Ghostty.app/Contents/MacOS/ghostty +validate-config`。フォントがどれで描かれるかは `+show-face --string=…`
   - Karabiner: ルールを `{"title": …, "rules": […]}` の形に取り出して `karabiner_cli --lint-complex-modifications`
   - Neovim: `nvim --headless +qa` で、起動のときにエラーが出ないこと
-  - Brewfile: `brew bundle check --file Brewfile`（`Brewfile.apps` も）。`brew bundle cleanup` は 2 つをまとめて渡す（`cat Brewfile Brewfile.apps | brew bundle cleanup --file=-`）。`Brewfile` だけだと、`Brewfile.apps` のものを消す一覧に入れる
+  - Brewfile: `brew bundle check --file Brewfile`（`Brewfile.apps` も）。`brew bundle cleanup` は 2 つをまとめて渡す（`cat Brewfile Brewfile.apps | brew bundle cleanup --file=-`）。`Brewfile` だけだと、`Brewfile.apps` のものが消す一覧に入る
   - Mac ごとに選ぶもので変わるもの: `[data]` を変えた一時的な設定と、一時的な状態・ホームで試す。この Mac の `~` も状態も変わらない
     ```sh
     chezmoi --config <一時>/chezmoi.toml --persistent-state <一時>/state.boltdb --destination <一時>/home status --exclude=externals
@@ -37,16 +37,16 @@
 
 ## zsh の書き方（Claude Code のシェルで壊さない）
 
-Claude Code は、対話のシェルの関数・エイリアス・オプションを写し取り（`~/.claude/shell-snapshots/`）、対話でないシェルで読み込んで使う。
+Claude Code は対話のシェルの関数・エイリアス・オプションを写し取り（`~/.claude/shell-snapshots/`）、対話でないシェルで読み込んで使う。
 
 - 関数の名前を `_` で始めない
   - 理由: `_` で始まる関数は写し取られないので、それを呼ぶ関数やフックが `command not found` になる（前の設定では `cd` のたびにこれが出ていた）
 - フックは `add-zsh-hook` で足し、フックの関数の中で `[[ -o interactive ]] || return 0` を確かめる。`chpwd()` などを直接上書きしない
 - コマンドと同じ名前のエイリアスは、オプションを足すだけのものにする（`ls -G` など）。確認を聞くもの（`rm -i` など）は `[[ -z $CLAUDECODE ]]` のときだけ作る
-  - 理由: Claude Code のシェルでは、聞かれても答えられない
+  - 理由: Claude Code のシェルでは聞かれても答えられない
 - エージェントのコマンドの動きを変えるオプション（`no_clobber` など）も、`[[ -z $CLAUDECODE ]]` のときだけ入れる
   - 理由: オプションも写し取られる。`no_clobber` が入っていると、エージェントの `>` が「file exists」で失敗する
-- 新しい名前を付ける前に、`whence -wa <名前>` が `none` になること（コマンドや zsh の組み込みとぶつからないこと）を確かめる。git の補助は `g` で始める（`private_dot_config/zsh/functions/git.zsh`）
+- 新しい名前を付ける前に、`whence -wa <名前>` が `none` になること（コマンドや zsh の組み込みとぶつからないこと）を確かめる。git の補助の関数は名前を `g` で始める（`private_dot_config/zsh/functions/git.zsh`）
 
 ## 入れないもの
 
