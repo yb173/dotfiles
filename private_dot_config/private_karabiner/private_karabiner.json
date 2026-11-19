@@ -98,6 +98,24 @@
                                 "type": "basic"
                             }
                         ]
+                    },
+                    {
+                        "description": "右 Option を Control+Option+Command として送る（AeroSpace の操作に使う。左 Option は Ghostty で Alt として使う）",
+                        "manipulators": [
+                            {
+                                "from": {
+                                    "key_code": "right_option",
+                                    "modifiers": { "optional": ["any"] }
+                                },
+                                "to": [
+                                    {
+                                        "key_code": "left_option",
+                                        "modifiers": ["left_control", "left_command"]
+                                    }
+                                ],
+                                "type": "basic"
+                            }
+                        ]
                     }
                 ]
             },

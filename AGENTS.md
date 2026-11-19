@@ -26,6 +26,7 @@
   - シェルスクリプト: `sh -n`
   - Ghostty: `/Applications/Ghostty.app/Contents/MacOS/ghostty +validate-config`。フォントがどれで描かれるかは `+show-face --string=…`
   - Karabiner: ルールを `{"title": …, "rules": […]}` の形に取り出して `karabiner_cli --lint-complex-modifications`
+  - AeroSpace: 置いたあと、`aerospace reload-config --dry-run --no-gui`（読み直さずに、設定の誤りだけを出す。AeroSpace が動いているときだけ使える）。置く前は、TOML として読めることだけを確かめる（`python3 -c 'import sys, tomllib; tomllib.load(open(sys.argv[1], "rb"))' <ファイル>`）
   - Neovim: `nvim --headless +qa` で、起動のときにエラーが出ないこと
   - Brewfile: `brew bundle check --file Brewfile`（`Brewfile.apps` も）。`brew bundle cleanup` は 2 つをまとめて渡す（`cat Brewfile Brewfile.apps | brew bundle cleanup --file=-`）。`Brewfile` だけだと、`Brewfile.apps` のものが消す一覧に入る
   - Mac ごとに選ぶもので変わるもの: `[data]` を変えた一時的な設定と、一時的な状態・ホームで試す。この Mac の `~` も状態も変わらない

@@ -15,6 +15,7 @@
 | `private_dot_config/nvim/` | `~/.config/nvim/` | Neovim |
 | `private_dot_config/ghostty/` | `~/.config/ghostty/` | Ghostty（`apps` のときだけ） |
 | `private_dot_config/private_karabiner/` | `~/.config/karabiner/` | Karabiner-Elements（`apps` のときだけ） |
+| `private_dot_config/aerospace/` | `~/.config/aerospace/` | AeroSpace（タイル型のウィンドウマネージャー）。右 Option で操作する（Karabiner-Elements が右 Option を Control+Option+Command として送る）。`apps` のときだけ |
 | `private_dot_config/mise/` | `~/.config/mise/` | mise（node は LTS の 26 の中で最新、python は最新を使う。`apps` のときだけ） |
 | `run_onchange_before_brew-bundle.sh.tmpl` | （置かない。chezmoi が実行する） | `Brewfile` が変わったら、`~` を書き換える前に、足りないものを `brew bundle` で入れる |
 | `run_onchange_before_brew-bundle-apps.sh.tmpl` | （置かない。chezmoi が実行する） | `Brewfile.apps` について同じことをする（`apps` のときだけ） |
@@ -43,12 +44,15 @@
 
 | 名前 | 聞くこと | 「入れる」と答えた Mac だけですること |
 | --- | --- | --- |
-| `macos` | macOS の設定を変えるか | macOS の設定のスクリプトを実行する（外観・Finder・Dock・キーリピート・トラックパッド。Dock と Finder が再起動する） |
-| `apps` | GUI のアプリ、好みのツール、mise の設定を入れるか | `Brewfile.apps` のもの（Ghostty・Karabiner-Elements・フォント・ffmpeg・yt-dlp・webp・libpq・gitleaks）を入れ、Ghostty・Karabiner-Elements・mise の設定を置き、`mise install` する |
+| `macos` | macOS の設定を変えるか | macOS の設定のスクリプトを実行する（外観・Finder・Dock・キーリピート・トラックパッド。`apps` も入れるなら、AeroSpace のために操作スペースと Mission Control の設定も変える。Dock と Finder が再起動する） |
+| `apps` | GUI のアプリ、好みのツール、mise の設定を入れるか | `Brewfile.apps` のもの（Ghostty・Karabiner-Elements・AeroSpace・フォント・ffmpeg・yt-dlp・webp・libpq・gitleaks）を入れ、Ghostty・Karabiner-Elements・AeroSpace・mise の設定を置き、`mise install` する |
 
 - 答えは `~/.config/chezmoi/chezmoi.toml` の `[data]` に残り、次からは聞かれない。変えるときは `chezmoi init --prompt` で聞き直す
 - 「入れない」に変えても、置いてあった設定や入っているアプリは消えない。chezmoi が管理しなくなるだけ
 - Karabiner-Elements の設定は US 配列のキーボードを前提にしている（仮想キーボードを `ansi` に決め打ち）。JIS や ISO の配列のキーボードがある Mac では、`chezmoi apply` が警告を出す（止めはしない）。そのまま使うと `_` や `¥` などの記号の位置がずれる。ずれて困るなら、その Mac では `apps` を入れないか、Karabiner-Elements の画面で配列を変える（`karabiner.json` が書き換わり、`chezmoi status` に差分として出続ける）
+- AeroSpace は、見ていないワークスペースのウィンドウを、ディスプレイの右下か左下の隅の外に置く。ディスプレイを何台もつなぐ Mac では、どのディスプレイでも右下か左下の隅がほかのディスプレイに接しないように並べる（システム設定 → ディスプレイ → 配置）。接していると、隠したウィンドウがほかのディスプレイに見える
+- AeroSpace は Public Beta で、1.0 までは設定の書き方が変わることがある
+- AeroSpace を入れたら、ほかのウィンドウを並べるアプリ（Rectangle など）は止める。どちらもウィンドウを動かすので、取り合いになる
 
 ## 新しい Mac で揃える
 
@@ -87,8 +91,9 @@ Apple Silicon の Mac を前提にしている（Homebrew の場所を `/opt/hom
    - git の名前とメールを `~/.config/git/config.local` に書く: `git config --file ~/.config/git/config.local user.name <名前>` と `git config --file ~/.config/git/config.local user.email <メール>`
    - （`apps`）Karabiner-Elements を開き、入力監視と、ドライバー（システム設定 → 一般 → ログイン項目と機能拡張）を許可する
    - （`apps`）Ghostty を開き、アクセシビリティを許可する（Control の 2 回押しで出し入れするホットキーのため）。許可したら Ghostty を終了して開き直す。ログイン項目にも Ghostty を足す（起動していないとホットキーが効かない）
+   - （`apps`）AeroSpace を開き、アクセシビリティを許可する。次からは、ログインしたときに自分で起動する（設定の `start-at-login`）
    - gh の拡張を入れる（拡張は gh の設定ファイルに残らない）: `gh extension install github/gh-actions-lock`
-   - （`macos`）一度ログアウトしてログインし直す（キーリピートと外観はログインし直すと反映される）
+   - （`macos`）一度ログアウトしてログインし直す（キーリピートと外観、`apps` なら操作スペースの設定は、ログインし直すと反映される）
    - Neovim を初めて開くと、配色の iceberg を入れるか聞かれる。入れる版は `nvim-pack-lock.json` に書いてある
    - この Mac だけの設定があれば、`~/.config/zsh/local.zprofile`（環境変数・PATH）と `~/.config/zsh/local.zsh`（補完・エイリアスなど）に書く
 
@@ -98,7 +103,7 @@ Apple Silicon の Mac を前提にしている（Homebrew の場所を `/opt/hom
 
 すでに `~/.zshrc` などがある Mac に入れるときは、先に控えを取り、残したい設定を `local` のファイルに移してから置く。
 
-- chezmoi は自分が置いたことのないファイルを、聞かずに上書きする。上書きされるのは `~/.zshenv`、`~/.config/zsh/`、`~/.config/git/` の `config` と `ignore`、`~/.config/nvim/`、`~/.config/starship.toml`、`~/.agents/skills/yomiyasu/`、`~/.claude/skills/yomiyasu`（`apps` なら Ghostty・Karabiner-Elements・mise の設定も）
+- chezmoi は自分が置いたことのないファイルを、聞かずに上書きする。上書きされるのは `~/.zshenv`、`~/.config/zsh/`、`~/.config/git/` の `config` と `ignore`、`~/.config/nvim/`、`~/.config/starship.toml`、`~/.agents/skills/yomiyasu/`、`~/.claude/skills/yomiyasu`（`apps` なら Ghostty・Karabiner-Elements・AeroSpace・mise の設定も）
 - 置いたあとは、zsh は `~/.zshrc`・`~/.zprofile` を読まない。置かれた `~/.zshenv` が zsh の設定の場所（`ZDOTDIR`）を `~/.config/zsh` に変えるため
 - 反対に、置いたあとも `~/.gitconfig` と Ghostty の `~/Library/Application Support/com.mitchellh.ghostty/` の設定は読まれ、同じ項目はこのリポジトリの設定より優先される（6・7 で片付ける）
 
@@ -109,7 +114,7 @@ Apple Silicon の Mac を前提にしている（Homebrew の場所を `/opt/hom
    ```zsh
    cd ~
    files=()
-   for f in .zshenv .zprofile .zshrc .zlogin .zsh_history .gitconfig .config/git .config/nvim .config/starship.toml .config/mise .config/ghostty .config/karabiner 'Library/Application Support/com.mitchellh.ghostty'; do
+   for f in .zshenv .zprofile .zshrc .zlogin .zsh_history .gitconfig .config/git .config/nvim .config/starship.toml .config/mise .config/ghostty .config/karabiner .config/aerospace .aerospace.toml 'Library/Application Support/com.mitchellh.ghostty'; do
      [[ -e $f ]] && files+=("$f")
    done
    tar -czf ~/dotfiles-backup-$(date +%F).tar.gz $files
@@ -186,6 +191,8 @@ Apple Silicon の Mac を前提にしている（Homebrew の場所を `/opt/hom
    trash ~/Library/Application\ Support/com.mitchellh.ghostty/config.ghostty   # あるものを消す
    ```
 
+   AeroSpace の設定が `~/.aerospace.toml` にあれば、それも消す（控えは 2 で取ってある）。`~/.config/aerospace/aerospace.toml` と両方あると、AeroSpace はどちらを読むか決められず、エラーを出す
+
 8. 履歴を新しい場所（`~/.local/state/zsh/history`）にコピーする。新しい履歴がまだないときだけコピーするので、何度実行してもよい
 
    ```zsh
@@ -250,6 +257,8 @@ chezmoi apply
 | zsh の設定 | 新しいタブを開く（`.zshrc` 側だけなら `reload` でもよい） |
 | Ghostty の設定 | Ghostty で Cmd+Shift+,（設定を読み直す） |
 | Karabiner-Elements の設定 | 要らない（ファイルが変わると、自分で読み直す） |
+| AeroSpace の設定 | `aerospace reload-config` で読み直す（右 Option+Shift+; のあと Esc でもよい） |
+| macOS の設定のうち、操作スペース（`apps` のとき） | ログアウトしてログインし直す |
 
 ## 版を上げる
 
@@ -258,6 +267,7 @@ chezmoi apply
 | もの | 上げ方 | リポジトリ |
 | --- | --- | --- |
 | Homebrew で入れた CLI とフォント（chezmoi・Neovim なども） | `brew update` のあと `brew upgrade`。上がるものは `brew outdated` で見る | 変わらない（Brewfile は版を書かない） |
+| AeroSpace | `brew upgrade` で、ほかのものと一緒に上がる（cask がアプリの中の更新を持たないため）。Public Beta で、1.0 までは設定の書き方が変わることがあるので、上げたら `aerospace reload-config --dry-run` で、設定に誤りがないかを確かめる | 変わらない。設定の書き方が変わったら、`aerospace.toml` を直して PR にする |
 | Ghostty・Karabiner-Elements | アプリの中の更新で上がる。cask が「アプリが自分で更新する」（`auto_updates`）なので、`brew upgrade` は飛ばす。Homebrew で上げるなら `brew upgrade --greedy-auto-updates` | 変わらない |
 | node・python（mise） | `mise upgrade` で新しい版を入れる（設定は node が `26`、python が `latest`。node は 26 の中で最新になり、27 には上がらない）。新しい版があるかは `mise outdated` で見る。mise は入っている中で最新の版を使うので、`mise upgrade` するまでは今の版のまま。古い版は 1 日後に消える。プロジェクトに `.node-version` などがあれば、そちらの版を使う | 変わらない。node を 26 より上げるときは、`config.toml` の `26` を書き換える |
 | zsh のプラグイン・yomiyasu | 新しいタグが出て 7 日たつと、Renovate が `.chezmoiexternal.toml` の URL のタグを書き換える PR を作る。差分（yomiyasu はリリースノートも）を見てマージし、`chezmoi apply` で取り直す。yomiyasu は版がよく出るので、PR もよく来る。Renovate が見つけたものと、待っている版は、issue の「Dependency Dashboard」に出る。手で上げるときは、URL のタグを書き換えて PR にする | PR で変わる |

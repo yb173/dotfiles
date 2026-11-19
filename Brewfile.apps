@@ -15,5 +15,8 @@ brew "webp" # cwebp
 # アプリとフォント
 cask "ghostty"
 cask "karabiner-elements"
+# AeroSpace（タイル型のウィンドウマネージャー）。Homebrew の公式の cask にはなく、作者の tap から入れる
+tap "nikitabobko/tap"
+cask "nikitabobko/tap/aerospace"
 cask "font-myricam" # VS Code で使っている
 cask "font-hackgen" # Ghostty で使っている（HackGen35）

@@ -1,0 +1,154 @@
+# AeroSpace（タイル型のウィンドウマネージャー）の設定
+# 書き方: https://nikitabobko.github.io/AeroSpace/guide
+#
+# 公式の既定の設定（AeroSpace.app/Contents/Resources/default-config.toml。v0.21.3-Beta）から変えたのは次の 2 つだけ。
+# - 修飾キーを alt から ctrl-alt-cmd にした。Karabiner-Elements で、右 Option を Control+Option+Command として送る。
+#   左 Option は、Ghostty で Alt として使う（fzf の Alt-C など）。AeroSpace は左右の Option を区別できない
+# - ログインしたときに起動する（start-at-login）
+# 既定の値と同じで、書かなくても変わらない項目（on-mode-changed）は書いていない
+#
+# 書き換えたら aerospace reload-config で読み直す（右 Option+Shift+; のあと Esc でもよい）
+
+config-version = 2
+
+after-startup-command = []
+start-at-login = true
+auto-reload-config = false
+
+enable-normalization-flatten-containers = true
+enable-normalization-opposite-orientation-for-nested-containers = true
+
+accordion-padding = 30
+default-root-container-layout = 'tiles'
+# auto: 横長のディスプレイでは左右に、縦長のディスプレイでは上下に並べる
+default-root-container-orientation = 'auto'
+
+# ほかのディスプレイにフォーカスが移ったら、マウスもそのディスプレイに動かす
+on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
+
+automatically-unhide-macos-hidden-apps = false
+
+# ウィンドウがなくても残しておくワークスペース（下のキーで移れるもの）
+persistent-workspaces = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B",
+                         "C", "D", "E", "F", "G", "I", "M", "N", "O", "P", "Q",
+                         "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
+
+focus-follows-mouse.enabled = false
+
+key-mapping.preset = 'qwerty'
+
+gaps.inner.horizontal = 0
+gaps.inner.vertical =   0
+gaps.outer.left =       0
+gaps.outer.bottom =     0
+gaps.outer.top =        0
+gaps.outer.right =      0
+
+# ctrl-alt-cmd は、右 Option を押したときの組み合わせ（Karabiner-Elements）
+[mode.main.binding]
+    # 並べ方: タイル（左右・上下を切り替える）、アコーディオン（重ねて少しずつずらす）
+    ctrl-alt-cmd-slash = 'layout tiles horizontal vertical'
+    ctrl-alt-cmd-comma = 'layout accordion horizontal vertical'
+
+    # フォーカスを移す
+    ctrl-alt-cmd-h = 'focus left'
+    ctrl-alt-cmd-j = 'focus down'
+    ctrl-alt-cmd-k = 'focus up'
+    ctrl-alt-cmd-l = 'focus right'
+
+    # ウィンドウを動かす
+    ctrl-alt-cmd-shift-h = 'move left'
+    ctrl-alt-cmd-shift-j = 'move down'
+    ctrl-alt-cmd-shift-k = 'move up'
+    ctrl-alt-cmd-shift-l = 'move right'
+
+    # 大きさを変える
+    ctrl-alt-cmd-minus = 'resize smart -50'
+    ctrl-alt-cmd-equal = 'resize smart +50'
+
+    # ワークスペースに移る
+    ctrl-alt-cmd-1 = 'workspace 1'
+    ctrl-alt-cmd-2 = 'workspace 2'
+    ctrl-alt-cmd-3 = 'workspace 3'
+    ctrl-alt-cmd-4 = 'workspace 4'
+    ctrl-alt-cmd-5 = 'workspace 5'
+    ctrl-alt-cmd-6 = 'workspace 6'
+    ctrl-alt-cmd-7 = 'workspace 7'
+    ctrl-alt-cmd-8 = 'workspace 8'
+    ctrl-alt-cmd-9 = 'workspace 9'
+    ctrl-alt-cmd-a = 'workspace A'
+    ctrl-alt-cmd-b = 'workspace B'
+    ctrl-alt-cmd-c = 'workspace C'
+    ctrl-alt-cmd-d = 'workspace D'
+    ctrl-alt-cmd-e = 'workspace E'
+    ctrl-alt-cmd-f = 'workspace F'
+    ctrl-alt-cmd-g = 'workspace G'
+    ctrl-alt-cmd-i = 'workspace I'
+    ctrl-alt-cmd-m = 'workspace M'
+    ctrl-alt-cmd-n = 'workspace N'
+    ctrl-alt-cmd-o = 'workspace O'
+    ctrl-alt-cmd-p = 'workspace P'
+    ctrl-alt-cmd-q = 'workspace Q'
+    ctrl-alt-cmd-r = 'workspace R'
+    ctrl-alt-cmd-s = 'workspace S'
+    ctrl-alt-cmd-t = 'workspace T'
+    ctrl-alt-cmd-u = 'workspace U'
+    ctrl-alt-cmd-v = 'workspace V'
+    ctrl-alt-cmd-w = 'workspace W'
+    ctrl-alt-cmd-x = 'workspace X'
+    ctrl-alt-cmd-y = 'workspace Y'
+    ctrl-alt-cmd-z = 'workspace Z'
+
+    # フォーカスしているウィンドウを、ワークスペースに送る
+    ctrl-alt-cmd-shift-1 = 'move-node-to-workspace 1'
+    ctrl-alt-cmd-shift-2 = 'move-node-to-workspace 2'
+    ctrl-alt-cmd-shift-3 = 'move-node-to-workspace 3'
+    ctrl-alt-cmd-shift-4 = 'move-node-to-workspace 4'
+    ctrl-alt-cmd-shift-5 = 'move-node-to-workspace 5'
+    ctrl-alt-cmd-shift-6 = 'move-node-to-workspace 6'
+    ctrl-alt-cmd-shift-7 = 'move-node-to-workspace 7'
+    ctrl-alt-cmd-shift-8 = 'move-node-to-workspace 8'
+    ctrl-alt-cmd-shift-9 = 'move-node-to-workspace 9'
+    ctrl-alt-cmd-shift-a = 'move-node-to-workspace A'
+    ctrl-alt-cmd-shift-b = 'move-node-to-workspace B'
+    ctrl-alt-cmd-shift-c = 'move-node-to-workspace C'
+    ctrl-alt-cmd-shift-d = 'move-node-to-workspace D'
+    ctrl-alt-cmd-shift-e = 'move-node-to-workspace E'
+    ctrl-alt-cmd-shift-f = 'move-node-to-workspace F'
+    ctrl-alt-cmd-shift-g = 'move-node-to-workspace G'
+    ctrl-alt-cmd-shift-i = 'move-node-to-workspace I'
+    ctrl-alt-cmd-shift-m = 'move-node-to-workspace M'
+    ctrl-alt-cmd-shift-n = 'move-node-to-workspace N'
+    ctrl-alt-cmd-shift-o = 'move-node-to-workspace O'
+    ctrl-alt-cmd-shift-p = 'move-node-to-workspace P'
+    ctrl-alt-cmd-shift-q = 'move-node-to-workspace Q'
+    ctrl-alt-cmd-shift-r = 'move-node-to-workspace R'
+    ctrl-alt-cmd-shift-s = 'move-node-to-workspace S'
+    ctrl-alt-cmd-shift-t = 'move-node-to-workspace T'
+    ctrl-alt-cmd-shift-u = 'move-node-to-workspace U'
+    ctrl-alt-cmd-shift-v = 'move-node-to-workspace V'
+    ctrl-alt-cmd-shift-w = 'move-node-to-workspace W'
+    ctrl-alt-cmd-shift-x = 'move-node-to-workspace X'
+    ctrl-alt-cmd-shift-y = 'move-node-to-workspace Y'
+    ctrl-alt-cmd-shift-z = 'move-node-to-workspace Z'
+
+    # 1 つ前のワークスペースに戻る
+    ctrl-alt-cmd-tab = 'workspace-back-and-forth'
+    # 今のワークスペースを、次のディスプレイに移す
+    ctrl-alt-cmd-shift-tab = 'move-workspace-to-monitor --wrap-around next'
+
+    # service モードに入る（下の [mode.service.binding] のキーが使える）
+    ctrl-alt-cmd-shift-semicolon = 'mode service'
+
+# service モード。どれか 1 つを押すと、もとのモードに戻る
+[mode.service.binding]
+    esc = ['reload-config', 'mode main'] # 設定を読み直す
+    r = ['flatten-workspace-tree', 'mode main'] # 並べ方を最初に戻す
+    f = ['layout floating tiling', 'mode main'] # このウィンドウを、並べずに浮かせる（もう一度で戻す）
+    backspace = ['close-all-windows-but-current', 'mode main'] # このウィンドウのほかを閉じる
+
+    # 隣のウィンドウと、1 つのまとまり（コンテナ）にする
+    ctrl-alt-cmd-shift-h = ['join-with left', 'mode main']
+    ctrl-alt-cmd-shift-j = ['join-with down', 'mode main']
+    ctrl-alt-cmd-shift-k = ['join-with up', 'mode main']
+    ctrl-alt-cmd-shift-l = ['join-with right', 'mode main']

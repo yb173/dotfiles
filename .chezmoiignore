@@ -14,6 +14,8 @@ CLAUDE.md
 {{ if not .apps -}}
 # chezmoi init で「アプリを入れる」と答えていない Mac には、GUI のアプリと mise の設定を置かない
 # （このファイルはテンプレートとして読まれる。置かないだけで、その Mac にあるものは消さない）
+.config/aerospace
+.config/aerospace/**
 .config/ghostty
 .config/ghostty/**
 .config/karabiner
