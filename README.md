@@ -8,7 +8,8 @@
 | --- | --- | --- |
 | `dot_zshenv` | `~/.zshenv` | zsh の設定の場所（`ZDOTDIR`）を決めるだけ |
 | `private_dot_config/zsh/` | `~/.config/zsh/` | zsh（`.zprofile`・`.zshrc`・エイリアス・関数） |
-| `.chezmoiexternal.toml` | `~/.local/share/zsh/plugins/` | zsh のプラグイン（chezmoi が GitHub から取ってくる） |
+| `.chezmoiexternal.toml` | `~/.local/share/zsh/plugins/`・`~/.agents/skills/yomiyasu/` | zsh のプラグインと、AI エージェントのスキル [yomiyasu](https://github.com/nanaism/yomiyasu)（AI が書いた日本語を推敲する。Codex は `~/.agents/skills` を読む）。chezmoi が GitHub から取ってくる |
+| `private_dot_claude/skills/symlink_yomiyasu` | `~/.claude/skills/yomiyasu` | `~/.agents/skills/yomiyasu` へのシンボリックリンク。Claude Code も同じ yomiyasu を読む |
 | `private_dot_config/starship.toml` | `~/.config/starship.toml` | starship（プロンプト）。Google Cloud のアカウント、パッケージの版（`package.json` の版など）、AWS のリージョンを出さないことと、記号に Nerd Font の文字を使わないこと（node の記号など）だけで、ほかは既定のまま |
 | `private_dot_config/git/` | `~/.config/git/` | git |
 | `private_dot_config/nvim/` | `~/.config/nvim/` | Neovim |
@@ -23,7 +24,7 @@
 | `Brewfile` | （置かない） | Homebrew で入れるもの（シェルと、シェルから使う CLI。どの Mac にも入れる） |
 | `Brewfile.apps` | （置かない） | Homebrew で入れるもの（GUI のアプリと好みのツール。`apps` のときだけ） |
 | `AGENTS.md`・`CLAUDE.md` | （置かない） | このリポジトリで作業する AI エージェント向けの説明 |
-| `.github/` | （置かない） | GitHub Actions（gitleaks で秘密情報を調べる、`actions.lock` を確かめる）、Dependabot（Actions の版を上げる）、Renovate（zsh のプラグインの版を上げる） |
+| `.github/` | （置かない） | GitHub Actions（gitleaks で秘密情報を調べる、`actions.lock` を確かめる）、Dependabot（Actions の版を上げる）、Renovate（zsh のプラグインと yomiyasu の版を上げる） |
 | `.chezmoi.toml.tmpl` | `~/.config/chezmoi/chezmoi.toml` | chezmoi の設定（このリポジトリの場所と、Mac ごとに選んだもの） |
 
 - `~/.config` は自分だけが読める権限（`700`）なので、リポジトリでは `private_dot_config` と書く
@@ -33,6 +34,7 @@
   - `~/.config/git/config.local`: git の名前とメール（`[user]`）など。`~/.config/git/config` が、あれば最後に読む（`[include]`）。名前とメールがないと、コミットのときに「Please tell me who you are」で止まる（`user.useConfigOnly`。Mac の名前から作ったメールでコミットしないように）
     - 書くときは `git config --file ~/.config/git/config.local …` を使う。git が勧める `git config --global` は、`~/.gitconfig` がないと chezmoi が置いた `~/.config/git/config` に書く
   - `.zshenv` 用は作らない。`.zshenv` はスクリプトの zsh も含めてすべての zsh が読み、macOS では後から `/etc/zprofile` の `path_helper` が PATH を並べ直すため
+- yomiyasu は、名前を出して頼んだとき（`/yomiyasu`、「yomiyasu で直して」など）だけ使われる。いつも使わせる 1 行（yomiyasu の README の「毎回 yomiyasu を使いたいとき」）は、`CLAUDE.md`・`AGENTS.md` に書いていない
 - `run_onchange_` のスクリプトは、中身が前に実行したときと変わると、`chezmoi apply` が実行する。Brewfile・mise・Karabiner-Elements のスクリプトには、それぞれ `Brewfile`・`Brewfile.apps`・mise の設定・`karabiner.json` のハッシュが書かれる（`.tmpl` なので、chezmoi が描くときに入れる）ので、そのファイルが変わると実行される。空に描かれたスクリプトは実行しない
 
 ### Mac ごとに選ぶもの
@@ -78,7 +80,7 @@ Apple Silicon の Mac を前提にしている（Homebrew の場所を `/opt/hom
 
    `chezmoi apply` は、次の順に進む。途中で失敗したら、直してから `chezmoi apply` をもう一度実行する（済んだスクリプトは、もう実行しない）
    1. `Brewfile`（`apps` なら `Brewfile.apps` も）のものを `brew bundle` で入れる。Karabiner-Elements はインストーラーなので、管理者のパスワードを聞かれる。先に入れるので、置いた `.zshrc` が、まだ入っていない mise や starship を呼ぶことはない
-   2. `~` に置き、zsh のプラグインを取ってくる。`macos` なら macOS の設定のスクリプトを実行する（Dock と Finder が再起動する）
+   2. `~` に置き、zsh のプラグインと yomiyasu を取ってくる。`macos` なら macOS の設定のスクリプトを実行する（Dock と Finder が再起動する）
    3. `apps` なら、mise で node と python を入れる
 
 4. 画面で許可を出し、残りを手で済ませる
@@ -96,7 +98,7 @@ Apple Silicon の Mac を前提にしている（Homebrew の場所を `/opt/hom
 
 すでに `~/.zshrc` などがある Mac に入れるときは、先に控えを取り、残したい設定を `local` のファイルに移してから置く。
 
-- chezmoi は、自分が置いたことのないファイルを、聞かずに上書きする。上書きされるのは `~/.zshenv`、`~/.config/zsh/`、`~/.config/git/` の `config` と `ignore`、`~/.config/nvim/`、`~/.config/starship.toml`（`apps` なら Ghostty・Karabiner-Elements・mise の設定も）
+- chezmoi は、自分が置いたことのないファイルを、聞かずに上書きする。上書きされるのは `~/.zshenv`、`~/.config/zsh/`、`~/.config/git/` の `config` と `ignore`、`~/.config/nvim/`、`~/.config/starship.toml`、`~/.agents/skills/yomiyasu/`、`~/.claude/skills/yomiyasu`（`apps` なら Ghostty・Karabiner-Elements・mise の設定も）
 - 置いたあとは、zsh は `~/.zshrc`・`~/.zprofile` を読まない。置かれた `~/.zshenv` が、zsh の設定の場所（`ZDOTDIR`）を `~/.config/zsh` に変えるため
 - 反対に、置いたあとも `~/.gitconfig` と Ghostty の `~/Library/Application Support/com.mitchellh.ghostty/` の設定は読まれ、同じ項目はこのリポジトリの設定より優先される（6・7 で片付ける）
 
@@ -234,7 +236,7 @@ chezmoi apply
 - その Mac に `~/.config/git/config.local`（git の名前とメール）がなければ、`chezmoi apply` の前に作る（書き方は上の「何がどこに置かれるか」）。git の設定には名前とメールを書いていないので、ないとコミットのときに止まる
 - `chezmoi apply` は、変わったものに合わせて次もする
   - `Brewfile`（`apps` なら `Brewfile.apps` も）が変わっていれば、`~` を書き換える前に、足りないものを `brew bundle` で入れる（入っているものの版は上げない）
-  - zsh のプラグインの版が変わっていれば、取り直す
+  - zsh のプラグインや yomiyasu の版が変わっていれば、取り直す
   - （`macos`）macOS の設定のスクリプトが変わっていれば、実行する（Dock と Finder が再起動する）
   - （`apps`）mise の設定が変わっていれば、置いたあとで `mise install` する
   - （`apps`）Karabiner-Elements の設定が変わっていれば、置いたあとでキーボードが US 配列かを確かめ、違えば警告を出す（上の「Mac ごとに選ぶもの」）
@@ -258,7 +260,7 @@ chezmoi apply
 | Homebrew で入れた CLI とフォント（chezmoi・Neovim なども） | `brew update` のあと `brew upgrade`。上がるものは `brew outdated` で見る | 変わらない（Brewfile は版を書かない） |
 | Ghostty・Karabiner-Elements | アプリの中の更新で上がる。cask が「アプリが自分で更新する」（`auto_updates`）なので、`brew upgrade` は飛ばす。Homebrew で上げるなら `brew upgrade --greedy-auto-updates` | 変わらない |
 | node・python（mise） | `mise upgrade` で新しい版を入れる（設定は node が `26`、python が `latest`。node は 26 の中で最新になり、27 には上がらない）。新しい版があるかは `mise outdated` で見る。mise は入っている中で最新の版を使うので、`mise upgrade` するまでは今の版のまま。古い版は 1 日後に消える。プロジェクトに `.node-version` などがあれば、そちらの版を使う | 変わらない。node を 26 より上げるときは、`config.toml` の `26` を書き換える |
-| zsh のプラグイン | 新しいタグが出て 7 日たつと、Renovate が `.chezmoiexternal.toml` の URL のタグを書き換える PR を作る。差分を見てマージし、`chezmoi apply` で取り直す。Renovate が見つけたプラグインと、待っている版は、issue の「Dependency Dashboard」に出る。手で上げるときは、URL のタグを書き換えて PR にする | PR で変わる |
+| zsh のプラグイン・yomiyasu | 新しいタグが出て 7 日たつと、Renovate が `.chezmoiexternal.toml` の URL のタグを書き換える PR を作る。差分（yomiyasu はリリースノートも）を見てマージし、`chezmoi apply` で取り直す。yomiyasu は版がよく出るので、PR もよく来る。Renovate が見つけたものと、待っている版は、issue の「Dependency Dashboard」に出る。手で上げるときは、URL のタグを書き換えて PR にする | PR で変わる |
 | GitHub Actions（ワークフローの Action） | マイナー版・パッチ版は、Dependabot が週に 1 回 PR を作る。Dependabot は `actions.lock` を更新しないので、その PR では `verify-lockfile` が失敗する。PR のブランチで `actions.lock` を更新して push してからマージする: `gh pr checkout <番号>` → `gh actions-lock` → `git commit -am 'ci: actions.lock を更新する'` → `git push`。メジャー版は PR にならない（使い方が変わることがあるため）。ときどき各 Action のリリース（`gh release list -R actions/checkout` など）を見て、リリースノートを読んでから手で上げる: ワークフローの版を書き換え、`gh actions-lock` を実行して PR にする | PR で変わる |
 | Neovim のプラグイン（iceberg） | Neovim で `:lua vim.pack.update()`。変わる中身が出るので、よければ `:write` で確定する。`~/.config/nvim/nvim-pack-lock.json` が書き換わる | `chezmoi re-add` で戻す |
 

@@ -1,5 +1,5 @@
 // Renovate の設定。項目は https://docs.renovatebot.com/configuration-options/
-// zsh のプラグイン（.chezmoiexternal.toml の tar.gz の URL）の版を上げる PR を作る。
+// zsh のプラグインと yomiyasu（.chezmoiexternal.toml の tar.gz の URL）の版を上げる PR を作る。
 // GitHub Actions は Dependabot が上げる（.github/dependabot.yml）
 {
   $schema: 'https://docs.renovatebot.com/renovate-schema.json',

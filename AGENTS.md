@@ -15,7 +15,7 @@
   - 聞くことを足すときは、`.chezmoi.toml.tmpl` の `[data]` に `promptBoolOnce` で足す。既定は「入れない」にする
 - リポジトリにだけ置き、`~` に置かないファイル（`README.md`・`Brewfile`・`Brewfile.apps`・このファイルなど）は `.chezmoiignore` に書く
   - 理由: 書き忘れると `~` に置かれる。`~/CLAUDE.md` ができると、ホームの下のすべてのプロジェクトで Claude Code が読んでしまう
-- 外から取ってくるもの（zsh のプラグイン）は `.chezmoiexternal.toml` に、版を固定した URL で書く
+- 外から取ってくるもの（zsh のプラグイン・yomiyasu）は `.chezmoiexternal.toml` に、版を固定した URL で書く
   - URL は `https://github.com/<owner>/<repo>/archive/refs/tags/<タグ>.tar.gz` の形にする。Renovate は、この形の URL を正規表現で見つけて版を上げる（`.github/renovate.json5` の `matchStrings`）。形を変えるときは、`matchStrings` も直す
 
 ## 置く前と後に確かめる
@@ -58,7 +58,7 @@ Claude Code は、対話のシェルの関数・エイリアス・オプショ�
 
 - main に直接 push しない。issue に問題と方針を書き、PR の本文の先頭に `Closes #番号` を書く。issue は #1 のサブ issue にする
   - main はルールセットで守っている（PR を通さない push・force push・削除を止める）。リポジトリの管理者は止めない設定なので、利用者の認証で動くエージェントは push できてしまう。できても push しない
-- 版を上げる PR は bot も作る: GitHub Actions は Dependabot、zsh のプラグインは Renovate。どちらも自動ではマージしない
+- 版を上げる PR は bot も作る: GitHub Actions は Dependabot、zsh のプラグインと yomiyasu は Renovate。どちらも自動ではマージしない
   - Dependabot は `actions.lock` を更新しないので、その PR は `verify-lockfile` で失敗する。PR のブランチで `gh actions-lock` を実行して push する（README の「版を上げる」）
   - Action のメジャー版は Dependabot が PR にしない。上げるときは、リリースノートを読んでから手で上げる
 - PR では GitHub Actions が gitleaks で秘密情報を調べる。public のリポジトリなので、見つかったら PR をマージせず、秘密情報を無効にしてから直す
