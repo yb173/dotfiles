@@ -18,7 +18,7 @@ keybind = global:f18=toggle_quick_terminal
 quick-terminal-position = top
 quick-terminal-size = 100%
 # メニューバーのある画面（システム設定 → ディスプレイ で「メイン」にした画面。今は内蔵の画面）に出す。
-# 既定の main は、キーボードで操作している画面に出るので、外部ディスプレイにも出る
+# 既定の main はキーボードで操作している画面に出るので、外部ディスプレイにも出る
 quick-terminal-screen = macos-menu-bar
 # 出し入れするときのアニメーションをなくす
 quick-terminal-animation-duration = 0
