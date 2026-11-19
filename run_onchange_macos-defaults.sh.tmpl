@@ -26,7 +26,16 @@ defaults write com.apple.dock tilesize -float 64
 defaults write com.apple.AppleMultitouchTrackpad Clicking -bool true
 defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
 defaults -currentHost write -g com.apple.mouse.tapBehavior -int 1
-
+{{ if .apps }}
+# AeroSpace（apps のときだけ入れる）のために、公式のガイドが勧める設定
+# 「ディスプレイごとに個別の操作スペース」を切る（spans-displays を true にすると切れる）。入っていると、違うウィンドウに
+# フォーカスが移るなど、動きが不安定になる。切ると、1 つのディスプレイで macOS のフルスクリーンにしたとき、
+# ほかのディスプレイが黒くなる（ログインし直すと反映される）
+defaults write com.apple.spaces spans-displays -bool true
+# Mission Control で、ウィンドウをアプリケーションごとにまとめる。AeroSpace は見ていないワークスペースのウィンドウを
+# 画面の隅に置くので、まとめないと Mission Control でウィンドウが小さく出る
+defaults write com.apple.dock expose-group-apps -bool true
+{{ end }}
 # Dock と Finder を再起動して反映する（動いていなくても失敗にしない）
 killall Dock Finder || true
 {{ end -}}
