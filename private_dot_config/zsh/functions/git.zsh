@@ -1,5 +1,5 @@
 # git の補助。名前は g で始め、oh-my-zsh の git のエイリアスに合わせる（gst・ga・gd・gco・gcp・grbi など）
-# 選ぶところは fzf を使う（Tab で複数選べるものもある）。引数は、そのまま git に渡す
+# 選ぶところは fzf を使う（Tab で複数選べるものもある）。引数はそのまま git に渡す
 # ファイルの一覧は NUL 区切りで受け渡す（git は -z、fzf は --read0 --print0）。
 # -z なら、git は日本語や空白の入った名前を引用符で囲まずに出す
 
@@ -19,7 +19,7 @@ ghash() {
 gd() {
   if [[ $1 == -s ]]; then
     # :/ を付けて、今いるディレクトリの外も含め、リポジトリ全体から選ぶ（ga -s・grst -s と同じ）。
-    # git ls-files のパスは、今いるディレクトリから数える（外のファイルは ../ で始まる）。最後の NUL を取る
+    # git ls-files のパスは今いるディレクトリから数える（外のファイルは ../ で始まる）。最後の NUL を取る
     local file=${"$(git ls-files -m -z -- :/ | fzf --read0 --print0 --preview 'git diff --color=always -- {}')"%$'\0'}
     [[ -n $file ]] || return 1
     print -rn -- "$file" | pbcopy
@@ -33,8 +33,8 @@ gd() {
 ga() {
   if [[ $1 == -s ]]; then
     shift
-    # git status のパスは、今いるディレクトリではなく、リポジトリのいちばん上から数える。
-    # そのため、:/（いちばん上から数えるという意味）を付けて渡す。--no-renames で、名前を変えたファイルを 1 行にしない
+    # git status のパスは今いるディレクトリではなくリポジトリのいちばん上から数える。
+    # そのため、:/（いちばん上から数えるという意味）を付けて渡す。--no-renames で名前を変えたファイルを 1 行にしない
     local files=(${(0)"$(git status --porcelain -z --no-renames |
       fzf -m --read0 --print0 --preview 'f={}; git diff --color=always -- ":/${f:3}"')"})
     (( $#files )) || return 1
@@ -48,7 +48,7 @@ ga() {
 # ステージを取り消す（git restore --staged）。-s でファイルを選ぶ
 grst() {
   if [[ $1 == -s ]]; then
-    # git diff --name-only のパスも、リポジトリのいちばん上から数えるので、:/ を付けて渡す
+    # git diff --name-only のパスもリポジトリのいちばん上から数えるので、:/ を付けて渡す
     local files=(${(0)"$(git diff --staged --name-only -z |
       fzf -m --read0 --print0 --preview 'git diff --staged --color=always -- :/{}')"})
     (( $#files )) || return 1
@@ -179,7 +179,7 @@ gnew() {
     print -u2 'gnew: 新しいブランチの名前を 1 つ渡す'
     return 1
   fi
-  # 既定のブランチに移る前に確かめる（移ってから失敗すると、元のブランチに戻らないため）
+  # 新しいブランチがもうないかを、既定のブランチに移る前に確かめる（移ってから失敗すると、元のブランチに戻らないため）
   if git show-ref --verify --quiet "refs/heads/$1"; then
     print -u2 "gnew: ブランチ $1 はもうある"
     return 1
