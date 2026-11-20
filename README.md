@@ -10,7 +10,7 @@
 | `private_dot_config/zsh/` | `~/.config/zsh/` | zsh（`.zprofile`・`.zshrc`・エイリアス・関数） |
 | `.chezmoiexternal.toml` | `~/.local/share/zsh/plugins/`・`~/.agents/skills/yomiyasu/` | zsh のプラグインと、AI エージェントのスキル [yomiyasu](https://github.com/nanaism/yomiyasu)（AI が書いた日本語を推敲する。Codex は `~/.agents/skills` を読む）。chezmoi が GitHub から取ってくる |
 | `private_dot_claude/skills/symlink_yomiyasu` | `~/.claude/skills/yomiyasu` | `~/.agents/skills/yomiyasu` へのシンボリックリンク。Claude Code も同じ yomiyasu を読む |
-| `private_dot_config/starship.toml` | `~/.config/starship.toml` | starship（プロンプト）。既定から変えたのは、Google Cloud のアカウント、パッケージの版（`package.json` の版など）、AWS のリージョンを出さないことと、記号に Nerd Font の文字を使わないこと（node の記号など）だけ |
+| `private_dot_config/starship.toml` | `~/.config/starship.toml` | starship（プロンプト）。既定から変えたのは、コマンドを待つ時間の上限を 1 秒に上げたこと（Mac が混んでいても node の版を出せるように）、Google Cloud のアカウント、パッケージの版（`package.json` の版など）、AWS のリージョンを出さないことと、記号に Nerd Font の文字を使わないこと（node の記号など）だけ |
 | `private_dot_config/git/` | `~/.config/git/` | git |
 | `private_dot_config/nvim/` | `~/.config/nvim/` | Neovim |
 | `private_dot_config/ghostty/` | `~/.config/ghostty/` | Ghostty（`apps` のときだけ） |

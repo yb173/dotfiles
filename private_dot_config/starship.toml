@@ -1,5 +1,9 @@
 # starship（プロンプト）の設定。書いていないものは既定のまま。項目は https://starship.rs/config/
 
+# starship が node --version などのコマンドを待つ時間の上限（ミリ秒）。既定の 500 では、Mac が混んでいるときに
+# node の起動が間に合わず、警告が出て、node の版も出ないことがあった。普段は 20ms ほどで終わるので、待つ時間は増えない
+command_timeout = 1000
+
 # Google Cloud のアカウントを出さない。既定では、gcloud にログインしていると、どのディレクトリでも
 # メールアドレスが出る。今のアカウントは gcloud config list で見る
 [gcloud]
