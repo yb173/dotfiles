@@ -15,5 +15,7 @@ brew "webp" # cwebp
 # アプリとフォント
 cask "ghostty"
 cask "karabiner-elements"
+# ランチャー。よく使うアプリにショートカットを割り当てて呼び出す。設定は画面でする（このリポジトリでは管理しない）
+cask "raycast"
 cask "font-myricam" # VS Code で使っている
 cask "font-hackgen" # Ghostty で使っている（HackGen35）

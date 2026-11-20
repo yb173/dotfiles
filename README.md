@@ -44,11 +44,12 @@
 | 名前 | 聞くこと | 「入れる」と答えた Mac だけですること |
 | --- | --- | --- |
 | `macos` | macOS の設定を変えるか | macOS の設定のスクリプトを実行する（外観・Finder・Dock・キーリピート・トラックパッド。Dock と Finder が再起動する） |
-| `apps` | GUI のアプリ、好みのツール、mise の設定を入れるか | `Brewfile.apps` のもの（Ghostty・Karabiner-Elements・フォント・ffmpeg・yt-dlp・webp・libpq・gitleaks）を入れ、Ghostty・Karabiner-Elements・mise の設定を置き、`mise install` する |
+| `apps` | GUI のアプリ、好みのツール、mise の設定を入れるか | `Brewfile.apps` のもの（Ghostty・Karabiner-Elements・Raycast・フォント・ffmpeg・yt-dlp・webp・libpq・gitleaks）を入れ、Ghostty・Karabiner-Elements・mise の設定を置き、`mise install` する |
 
 - 答えは `~/.config/chezmoi/chezmoi.toml` の `[data]` に残り、次からは聞かれない。変えるときは `chezmoi init --prompt` で聞き直す
 - 「入れない」に変えても、置いてあった設定や入っているアプリは消えない。chezmoi が管理しなくなるだけ
 - Karabiner-Elements の設定は US 配列のキーボードを前提にしている（仮想キーボードを `ansi` に決め打ち）。JIS や ISO の配列のキーボードがある Mac では、`chezmoi apply` が警告を出す（止めはしない）。そのまま使うと `_` や `¥` などの記号の位置がずれる。ずれて困るなら、その Mac では `apps` を入れないか、Karabiner-Elements の画面で配列を変える（`karabiner.json` が書き換わり、`chezmoi status` に差分として出続ける）
+- Raycast は入れるだけで、設定（アプリごとのショートカットなど）はこのリポジトリで管理しない。Raycast の設定は画面でするもので、書き出したファイル（`.rayconfig`）は差分を読めず、設定の同期は有料のため。Mac ごとに画面で設定する
 
 ## 新しい Mac で揃える
 
@@ -87,6 +88,7 @@ Apple Silicon の Mac を前提にしている（Homebrew の場所を `/opt/hom
    - git の名前とメールを `~/.config/git/config.local` に書く: `git config --file ~/.config/git/config.local user.name <名前>` と `git config --file ~/.config/git/config.local user.email <メール>`
    - （`apps`）Karabiner-Elements を開き、入力監視と、ドライバー（システム設定 → 一般 → ログイン項目と機能拡張）を許可する
    - （`apps`）Ghostty を開き、アクセシビリティを許可する（Control の 2 回押しで出し入れするホットキーのため）。許可したら Ghostty を終了して開き直す。ログイン項目にも Ghostty を足す（起動していないとホットキーが効かない）
+   - （`apps`）Raycast を開き、最初の画面の案内に沿って、呼び出すキーと許可を設定する。よく使うアプリには、設定の「Extensions → Applications」でショートカット（Hotkey）を割り当てる
    - gh の拡張を入れる（拡張は gh の設定ファイルに残らない）: `gh extension install github/gh-actions-lock`
    - （`macos`）一度ログアウトしてログインし直す（キーリピートと外観はログインし直すと反映される）
    - Neovim を初めて開くと、配色の iceberg を入れるか聞かれる。入れる版は `nvim-pack-lock.json` に書いてある
@@ -258,7 +260,7 @@ chezmoi apply
 | もの | 上げ方 | リポジトリ |
 | --- | --- | --- |
 | Homebrew で入れた CLI とフォント（chezmoi・Neovim なども） | `brew update` のあと `brew upgrade`。上がるものは `brew outdated` で見る | 変わらない（Brewfile は版を書かない） |
-| Ghostty・Karabiner-Elements | アプリの中の更新で上がる。cask が「アプリが自分で更新する」（`auto_updates`）なので、`brew upgrade` は飛ばす。Homebrew で上げるなら `brew upgrade --greedy-auto-updates` | 変わらない |
+| Ghostty・Karabiner-Elements・Raycast | アプリの中の更新で上がる。cask が「アプリが自分で更新する」（`auto_updates`）なので、`brew upgrade` は飛ばす。Homebrew で上げるなら `brew upgrade --greedy-auto-updates` | 変わらない |
 | node・python（mise） | `mise upgrade` で新しい版を入れる（設定は node が `26`、python が `latest`。node は 26 の中で最新になり、27 には上がらない）。新しい版があるかは `mise outdated` で見る。mise は入っている中で最新の版を使うので、`mise upgrade` するまでは今の版のまま。古い版は 1 日後に消える。プロジェクトに `.node-version` などがあれば、そちらの版を使う | 変わらない。node を 26 より上げるときは、`config.toml` の `26` を書き換える |
 | zsh のプラグイン・yomiyasu | 新しいタグが出て 7 日たつと、Renovate が `.chezmoiexternal.toml` の URL のタグを書き換える PR を作る。差分（yomiyasu はリリースノートも）を見てマージし、`chezmoi apply` で取り直す。yomiyasu は版がよく出るので、PR もよく来る。Renovate が見つけたものと、待っている版は、issue の「Dependency Dashboard」に出る。手で上げるときは、URL のタグを書き換えて PR にする | PR で変わる |
 | GitHub Actions（ワークフローの Action） | マイナー版・パッチ版は、Dependabot が週に 1 回 PR を作る。Dependabot は `actions.lock` を更新しないので、その PR では `verify-lockfile` が失敗する。PR のブランチで `actions.lock` を更新して push してからマージする: `gh pr checkout <番号>` → `gh actions-lock` → `git commit -am 'ci: actions.lock を更新する'` → `git push`。メジャー版は PR にならない（使い方が変わることがあるため）。ときどき各 Action のリリース（`gh release list -R actions/checkout` など）を見て、リリースノートを読んでから手で上げる: ワークフローの版を書き換え、`gh actions-lock` を実行して PR にする | PR で変わる |
