@@ -5,7 +5,11 @@
 name: Verify lockfile
 
 on:
-  - pull_request
+  pull_request:
+  # マージしたあとの main も確かめる
+  push:
+    branches:
+      - main
 
 jobs:
   verify:
@@ -13,8 +17,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    env:
-      GH_TOKEN: ${{ github.token }}
 
     steps:
       - name: Checkout
@@ -22,9 +24,7 @@ jobs:
         with:
           persist-credentials: false
 
-      # gh-actions-lock 自体はバージョンを固定せず、常に最新版を使う
-      - name: Install gh-actions-lock
-        run: gh extension install github/gh-actions-lock
-
+      # gh-actions-lock の公式の verify アクション。チェックサムを確かめた CLI で gh actions-lock --verify を実行する
+      # CLI の版はタグ（verify/v*）で決まり、Dependabot がタグと actions.lock を上げる
       - name: Verify lockfile
-        run: gh actions-lock --verify
+        uses: github/gh-actions-lock@verify/v0.5.1

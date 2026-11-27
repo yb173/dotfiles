@@ -59,7 +59,7 @@ Claude Code は対話のシェルの関数・エイリアス・オプション�
 - main に直接 push しない。issue に問題と方針を書き、PR の本文の先頭に `Closes #番号` を書く。issue は #1 のサブ issue にする
   - main はルールセットで守っている（PR を通さない push・force push・削除を止める）。リポジトリの管理者は止めない設定なので、利用者の認証で動くエージェントは push できてしまう。できても push しない
 - 版を上げる PR は bot も作る: GitHub Actions は Dependabot、zsh のプラグインと yomiyasu は Renovate。どちらも自動ではマージしない
-  - Dependabot は `actions.lock` を更新しないので、その PR は `verify-lockfile` で失敗する。PR のブランチで `gh actions-lock` を実行して push する（README の「版を上げる」）
+  - Dependabot は Action の版と一緒に `actions.lock` も更新する。`verify-lockfile` が失敗したときだけ、PR のブランチで `gh actions-lock` を実行して push する（README の「版を上げる」）
   - Action のメジャー版は Dependabot が PR にしない。上げるときは、リリースノートを読んでから手で上げる
 - PR では GitHub Actions が gitleaks で秘密情報を調べる。public のリポジトリなので、見つかったら PR をマージせず、秘密情報を無効にしてから直す
 - ワークフロー（`.github/workflows/`）を変えたら、`gh actions-lock` で `actions.lock` を更新する（PR で `verify-lockfile` が確かめる）。Action は版のタグで書く
