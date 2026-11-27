@@ -30,7 +30,7 @@ stripComponents = 1
 # Codex は ~/.agents/skills を読む。Claude Code は ~/.claude/skills/yomiyasu（ここへのリンク）から読む
 [".agents/skills/yomiyasu"]
 type = "archive"
-url = "https://github.com/nanaism/yomiyasu/archive/refs/tags/v3.1.0.tar.gz"
+url = "https://github.com/nanaism/yomiyasu/archive/refs/tags/v3.2.3.tar.gz"
 exact = true
 stripComponents = 3
 include = ["*/skills/yomiyasu/**"]
